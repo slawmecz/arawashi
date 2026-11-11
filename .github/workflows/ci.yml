@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, type-check, test, build, E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # pnpm version comes from the "packageManager" field in package.json.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Repository hygiene (allow-listed paths only)
+        run: pnpm check:paths
+
+      - run: pnpm lint
+      - run: pnpm format:check
+
+      - name: Type-check all packages
+        run: pnpm check
+
+      - name: Unit tests (schema, Worker, web)
+        run: pnpm test
+
+      - name: Build the website (no CMS configured, empty states)
+        run: pnpm build
+
+      # Polish typography of the launch-day pages (space before punctuation, hanging one-letter words).
+      - name: Typography check (empty build)
+        run: pnpm check:html
+
+      - name: Build the Sanity Studio (validates the content schemas)
+        run: pnpm studio:build
+        env:
+          SANITY_STUDIO_PROJECT_ID: ci0check
+
+      - name: Install the Playwright browser
+        run: pnpm --filter @arawashi/web exec playwright install --with-deps chromium
+
+      # Rebuilds the site with synthetic fixture content and tests every page.
+      - name: E2E and accessibility tests
+        run: pnpm test:e2e
+
+      # The E2E web server left the fixtures build in apps/web/dist: check its typography too.
+      - name: Typography check (fixtures build)
+        run: pnpm check:html
+
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7

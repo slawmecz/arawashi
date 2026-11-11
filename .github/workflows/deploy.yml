@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+# Runs on every push to main, when the CMS publishes content (the Sanity webhook calls the
+# workflow_dispatch API) and nightly as a safety net (e.g. if the webhook token expired).
+# Setup: docs/setup.md. Requires GitHub Pages with "Source: GitHub Actions".
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '30 3 * * *'
+
+permissions:
+  contents: read
+
+# One deployment at a time; a newer run waits instead of cancelling the one in progress.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Content comes from the CMS at build time; nothing is committed to the repository.
+      # Repository variables (not secrets): the dataset is public and these values are
+      # visible in the built site anyway.
+      - run: pnpm build
+        env:
+          SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ vars.SANITY_DATASET }}
+          # Only for a private dataset; empty otherwise.
+          SANITY_READ_TOKEN: ${{ secrets.SANITY_READ_TOKEN }}
+          PUBLIC_SIGNUP_ENDPOINT: ${{ vars.PUBLIC_SIGNUP_ENDPOINT }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+
+      # The built site is published as an artifact; it is never committed to the repository.
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

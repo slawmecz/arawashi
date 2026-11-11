@@ -1,0 +1,20 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Packages allowed to run install scripts (pnpm blocks all others by default).
+allowBuilds:
+  esbuild: true
+  workerd: true
+  sharp: true
+
+overrides:
+  # @napi-rs/wasm-runtime accepts @emnapi/runtime 2.0 prereleases as a peer, so pnpm picked a
+  # 2.0 beta that is incompatible with @emnapi/core 1.x and broke `astro check`.
+  # Pin the latest stable release until the 2.0 line is final.
+  '@emnapi/runtime': 1.11.3
+  # Security patches for transitive dev-tool dependencies (pnpm audit, 2026-11-07),
+  # kept within the same major version so the tools that depend on them are unaffected.
+  'js-yaml@3': ^3.15.2
+  'undici@7': ^7.30.1
+  'smol-toml@1': ^1.9.1

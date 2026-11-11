@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # The npm ecosystem also covers pnpm lockfiles.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # TypeScript 7 is not supported yet by `astro check` and typescript-eslint.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

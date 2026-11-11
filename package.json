@@ -1,0 +1,38 @@
+{
+  "name": "arawashi",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Website of the Arawashi karate club (Siechnice, Poland): Astro + React + Tailwind, content from Sanity, deployed to GitHub Pages.",
+  "type": "module",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @arawashi/web dev",
+    "build": "pnpm --filter @arawashi/web build",
+    "preview": "pnpm --filter @arawashi/web preview",
+    "check": "pnpm -r --if-present check",
+    "test": "pnpm -r --if-present test && pnpm test:scripts",
+    "test:scripts": "node --test scripts/lib/typography-check.test.mjs",
+    "test:e2e": "pnpm --filter @arawashi/web test:e2e",
+    "studio:dev": "pnpm --filter @arawashi/studio dev",
+    "studio:build": "pnpm --filter @arawashi/studio build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:paths": "node scripts/check-repo-paths.mjs",
+    "check:html": "node scripts/check-built-html.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.2",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1"
+  }
+}
