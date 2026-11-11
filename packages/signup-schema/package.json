@@ -1,0 +1,21 @@
+{
+  "name": "@arawashi/signup-schema",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Validation schema for the club signup form, shared by the browser form and the signup Worker.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  // Cloudflare Worker that receives the club signup form. Docs: README.md in this folder.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "arawashi-signup",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  // No request logs: the Worker handles children's personal data and must not keep copies.
+  "observability": { "enabled": false },
+  "vars": {
+    "ALLOWED_ORIGINS": "https://arawashi.eu,https://www.arawashi.eu",
+    "MAIL_FROM": "formularz@arawashi.eu",
+    "MAIL_FROM_NAME": "Strona Arawashi",
+  },
+  // Secrets (set with `wrangler secret put <NAME>`): MAIL_TO, BREVO_API_KEY, TURNSTILE_SECRET_KEY.
+  "ratelimits": [
+    {
+      "name": "SIGNUP_RATE_LIMITER",
+      "namespace_id": "1001",
+      // At most 5 submissions per minute from one IP address.
+      "simple": { "limit": 5, "period": 60 },
+    },
+  ],
+}

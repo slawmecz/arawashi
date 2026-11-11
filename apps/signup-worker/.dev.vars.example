@@ -1,0 +1,6 @@
+# Copy to .dev.vars (git-ignored) for `pnpm dev`. Never commit real values.
+ALLOWED_ORIGINS=http://localhost:4321
+MAIL_TO=club-inbox@example.com
+BREVO_API_KEY=replace-me
+# Cloudflare's test secret that always passes; pair it with the test site key 1x00000000000000000000AA.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
