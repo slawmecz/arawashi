@@ -1,0 +1,47 @@
+---
+/** "Poznaj Arawashi": about the club, with links to the club sub-pages. */
+import PageHeader from '../../components/PageHeader.astro';
+import { clubPages } from '../../config/club-pages';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSiteContent } from '../../lib/content';
+import { nbsp } from '../../lib/typography';
+
+const { aboutHtml, settings } = await getSiteContent();
+const pages = clubPages(settings.isOpp && Boolean(settings.krs));
+// Four cards look balanced as 2×2; five (with the 1.5% page) as 3 + 2.
+const columns = pages.length === 4 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3';
+---
+
+<BaseLayout
+  title="Poznaj Arawashi"
+  description="Klub karate WKF Arawashi z gminy Siechnice — o nas, kadra, osiągnięcia i dokumenty."
+>
+  <PageHeader
+    title="Poznaj Arawashi"
+    lead="Szacunek, dyscyplina, charakter — wartości, na których szkolimy przyszłych mistrzów."
+  />
+  <div class="mx-auto max-w-6xl space-y-12 px-4 py-12">
+    {aboutHtml ? (
+      <div class="prose-club" set:html={aboutHtml} />
+    ) : (
+      <p class="max-w-prose text-lg text-ink/80">
+        Arawashi to klub karate WKF z&nbsp;gminy Siechnice. Więcej o&nbsp;klubie napiszemy wkrótce.
+      </p>
+    )}
+    <nav aria-label="Podstrony klubu">
+      <ul class:list={['grid gap-4', columns]}>
+        {pages.map((page) => (
+          <li>
+            <a
+              href={page.href}
+              class="block h-full rounded-lg border-2 border-ink/15 p-6 hover:border-brand-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-red"
+            >
+              <span class="block text-xl font-bold">{nbsp(page.title)}</span>
+              <span class="mt-2 block text-ink/80">{nbsp(page.description)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</BaseLayout>

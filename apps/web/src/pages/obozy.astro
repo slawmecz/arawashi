@@ -1,0 +1,59 @@
+---
+/** Upcoming camps and day camps (past ones are hidden automatically at build time). */
+import EmptyState from '../components/EmptyState.astro';
+import PageHeader from '../components/PageHeader.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSiteContent } from '../lib/content';
+import { formatDateRange, upcoming } from '../lib/format';
+
+const { camps } = await getSiteContent();
+const today = new Date().toISOString().slice(0, 10);
+const nextCamps = upcoming(camps, today);
+const kindLabel = { oboz: 'Obóz', polkolonie: 'Półkolonie' } as const;
+// On phones each label sits right above its value, with more space before the next pair.
+const dtClass = 'mt-3 font-semibold first:mt-0 sm:mt-0';
+---
+
+<BaseLayout
+  title="Obozy i półkolonie"
+  description="Obozy sportowe i półkolonie z karate organizowane przez klub Arawashi."
+>
+  <PageHeader title="Obozy i półkolonie" />
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    {nextCamps.length > 0 ? (
+      <ul class="max-w-4xl space-y-8">
+        {nextCamps.map((camp) => (
+          <li class="rounded-lg border border-ink/15 p-6">
+            <p class="text-sm font-semibold tracking-wider text-brand-red uppercase">
+              {kindLabel[camp.kind]}
+            </p>
+            <h2 class="mt-1 text-2xl font-bold">{camp.title}</h2>
+            <dl class="mt-4 grid gap-x-3 gap-y-1 sm:grid-cols-[8rem_1fr] sm:gap-y-2">
+              <dt class={dtClass}>Termin</dt>
+              <dd>{formatDateRange(camp.startDate, camp.endDate)}</dd>
+              {camp.location && (
+                <>
+                  <dt class={dtClass}>Miejsce</dt>
+                  <dd>{camp.location}</dd>
+                </>
+              )}
+              {camp.price && (
+                <>
+                  <dt class={dtClass}>Cena</dt>
+                  <dd>{camp.price}</dd>
+                </>
+              )}
+            </dl>
+            {camp.descriptionHtml && (
+              <div class="prose-club mt-4" set:html={camp.descriptionHtml} />
+            )}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <div class="max-w-4xl">
+        <EmptyState message="Informacje o najbliższych obozach i półkoloniach pojawią się wkrótce." />
+      </div>
+    )}
+  </div>
+</BaseLayout>

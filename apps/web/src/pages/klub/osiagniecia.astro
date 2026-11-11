@@ -1,0 +1,35 @@
+---
+/** Key achievements, newest first. */
+import EmptyState from '../../components/EmptyState.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSiteContent } from '../../lib/content';
+import { formatDate } from '../../lib/format';
+
+const { achievements } = await getSiteContent();
+---
+
+<BaseLayout title="Osiągnięcia" description="Najważniejsze osiągnięcia zawodników klubu Arawashi.">
+  <PageHeader title="Osiągnięcia" back={{ href: '/klub/', label: 'Poznaj Arawashi' }} />
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    {achievements.length > 0 ? (
+      <ol class="max-w-4xl space-y-6 border-l-4 border-brand-red pl-6">
+        {achievements.map((item) => (
+          <li>
+            <time datetime={item.date} class="text-sm font-semibold text-brand-red">
+              {formatDate(item.date)}
+            </time>
+            <h2 class="mt-1 text-xl font-bold">{item.title}</h2>
+            {item.descriptionHtml && (
+              <div class="prose-club mt-2 text-base" set:html={item.descriptionHtml} />
+            )}
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <div class="max-w-4xl">
+        <EmptyState message="Lista najważniejszych osiągnięć pojawi się wkrótce." />
+      </div>
+    )}
+  </div>
+</BaseLayout>

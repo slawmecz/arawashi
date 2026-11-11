@@ -1,0 +1,50 @@
+---
+/** A single news post (one static page per published post). */
+import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSiteContent } from '../../lib/content';
+import type { NewsPost } from '../../lib/content/schema';
+import { formatDate } from '../../lib/format';
+
+export const getStaticPaths = (async () => {
+  const { news } = await getSiteContent();
+  return news.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: NewsPost;
+}
+
+const { post } = Astro.props;
+// The <title> and description use plain spaces (the typeset title has non-breaking ones).
+const plain = (text: string) => text.replaceAll('\u00a0', ' ');
+---
+
+<BaseLayout title={plain(post.title)} description={plain(post.excerpt ?? post.title)}>
+  {/* Same left edge as the logo; the reading column stays narrow. */}
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <article class="max-w-3xl">
+      <a
+        href="/aktualnosci/"
+        class="rounded font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red"
+      >
+        ← Wszystkie aktualności
+      </a>
+      <time datetime={post.date} class="mt-6 block text-sm font-semibold text-brand-red">
+        {formatDate(post.date)}
+      </time>
+      <h1 class="mt-2 text-2xl font-extrabold sm:text-3xl md:text-4xl">{post.title}</h1>
+      {post.image && (
+        <Image
+          src={post.image.src}
+          alt={post.image.alt}
+          width={1200}
+          height={Math.round((1200 * post.image.height) / post.image.width)}
+          class="mt-8 w-full rounded-lg"
+        />
+      )}
+      <div class="prose-club mt-8" set:html={post.bodyHtml} />
+    </article>
+  </div>
+</BaseLayout>

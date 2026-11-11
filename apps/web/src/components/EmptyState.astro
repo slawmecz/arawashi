@@ -1,0 +1,42 @@
+---
+/**
+ * Shown when the club has not published content for a section yet. A calm notice rather than
+ * a dashed "drop zone", so a page without content still looks finished. The follow-up line
+ * points to the contact page only when it has a phone number or e-mail; otherwise to the
+ * signup form, which always works.
+ */
+import { getSiteContent } from '../lib/content';
+import { nbsp } from '../lib/typography';
+
+interface Props {
+  message?: string;
+  /** Adds the follow-up line ("Masz pytania? …"). Off on the contact page itself. */
+  showContact?: boolean;
+}
+
+const { message = 'Informacje pojawią się wkrótce.', showContact = true } = Astro.props;
+const { settings } = await getSiteContent();
+const canContact = Boolean(settings.phone || settings.email);
+const linkClass =
+  'rounded font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red';
+---
+
+<div class="rounded-lg border-l-4 border-brand-red bg-ink/5 p-6">
+  <p class="text-lg">{nbsp(message)}</p>
+  {showContact &&
+    (canContact ? (
+      <p class="mt-2 text-ink/80">
+        Masz pytania?{' '}
+        <a href="/kontakt/" class={linkClass}>
+          Skontaktuj się z&nbsp;nami.
+        </a>
+      </p>
+    ) : (
+      <p class="mt-2 text-ink/80">
+        Chcesz zapisać dziecko?{' '}
+        <a href="/zapisz-sie/" class={linkClass}>
+          Wypełnij formularz.
+        </a>
+      </p>
+    ))}
+</div>

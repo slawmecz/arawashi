@@ -1,0 +1,129 @@
+---
+/** Contact details, training venues and social media (all from the CMS). */
+import EmptyState from '../components/EmptyState.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SocialIcon from '../components/SocialIcon.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSiteContent } from '../lib/content';
+
+const { settings } = await getSiteContent();
+const telHref = settings.phone ? `tel:${settings.phone.replace(/[^\d+]/g, '')}` : undefined;
+const hasContact = Boolean(settings.phone || settings.email || settings.address);
+const linkClass =
+  'rounded font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red';
+// On phones each label sits right above its value, with more space before the next pair.
+const dtClass = 'mt-3 font-semibold first:mt-0 sm:mt-0';
+---
+
+<BaseLayout
+  title="Kontakt"
+  description="Kontakt z klubem karate Arawashi: telefon, e-mail i miejsca treningów."
+>
+  <PageHeader title="Kontakt" />
+  <div class="mx-auto grid max-w-6xl gap-12 px-4 py-12 lg:grid-cols-2">
+    <section aria-labelledby="dane-kontaktowe">
+      <h2 id="dane-kontaktowe" class="mb-4 text-2xl font-bold">
+        Dane kontaktowe
+      </h2>
+      {hasContact ? (
+        <dl class="grid gap-x-3 gap-y-1 text-lg sm:grid-cols-[8rem_1fr] sm:gap-y-3">
+          {settings.phone && (
+            <>
+              <dt class={dtClass}>Telefon</dt>
+              <dd>
+                <a href={telHref} class={linkClass}>
+                  {settings.phone}
+                </a>
+              </dd>
+            </>
+          )}
+          {settings.email && (
+            <>
+              <dt class={dtClass}>E-mail</dt>
+              <dd>
+                <a href={`mailto:${settings.email}`} class={`${linkClass} wrap-anywhere`}>
+                  {settings.email}
+                </a>
+              </dd>
+            </>
+          )}
+          {settings.address && (
+            <>
+              <dt class={dtClass}>Adres</dt>
+              <dd>{settings.address}</dd>
+            </>
+          )}
+          {settings.nip && (
+            <>
+              <dt class={dtClass}>NIP</dt>
+              <dd>{settings.nip}</dd>
+            </>
+          )}
+          {settings.krs && (
+            <>
+              <dt class={dtClass}>KRS</dt>
+              <dd>{settings.krs}</dd>
+            </>
+          )}
+          {settings.bankAccount && (
+            <>
+              <dt class={dtClass}>Numer konta</dt>
+              <dd class="break-words">{settings.bankAccount}</dd>
+            </>
+          )}
+        </dl>
+      ) : (
+        <EmptyState message="Dane kontaktowe pojawią się wkrótce." showContact={false} />
+      )}
+      {(settings.facebookUrl || settings.instagramUrl) && (
+        <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-3">
+          {settings.facebookUrl && (
+            <li>
+              <a href={settings.facebookUrl} class={`inline-flex items-center gap-2 ${linkClass}`}>
+                <SocialIcon network="facebook" />
+                Facebook klubu
+              </a>
+            </li>
+          )}
+          {settings.instagramUrl && (
+            <li>
+              <a href={settings.instagramUrl} class={`inline-flex items-center gap-2 ${linkClass}`}>
+                <SocialIcon network="instagram" />
+                Instagram klubu
+              </a>
+            </li>
+          )}
+        </ul>
+      )}
+    </section>
+
+    <section aria-labelledby="miejsca-treningow">
+      <h2 id="miejsca-treningow" class="mb-4 text-2xl font-bold">
+        Miejsca treningów
+      </h2>
+      {settings.venues.length > 0 ? (
+        <ul class="space-y-4 text-lg">
+          {settings.venues.map((venue) => (
+            <li class="rounded-lg border border-ink/15 p-5">
+              <p class="font-bold">{venue.name}</p>
+              <p>{venue.address}</p>
+              {venue.mapUrl && (
+                <a href={venue.mapUrl} class={`mt-2 inline-block ${linkClass}`}>
+                  Otwórz w&nbsp;mapach<span class="sr-only">: {venue.name}</span>
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <EmptyState message="Adresy sal treningowych pojawią się wkrótce." showContact={false} />
+      )}
+      <p class="mt-8 text-lg">
+        Chcesz zapisać dziecko?{' '}
+        <a href="/zapisz-sie/" class={linkClass}>
+          Wypełnij formularz.
+        </a>
+      </p>
+    </section>
+  </div>
+</BaseLayout>

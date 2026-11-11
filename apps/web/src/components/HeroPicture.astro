@@ -1,0 +1,72 @@
+---
+/**
+ * Background photo of the home page hero, with art direction: a portrait crop on phones and a
+ * landscape crop from 48rem, both around the editor's focal point, as AVIF with a WebP fallback.
+ * Decorative (alt=""): the slogan in front of it carries the meaning. It is the largest element
+ * of the first screen, so it is fetched early with high priority.
+ */
+import { getImage } from 'astro:assets';
+import type { HeroImage } from '../lib/content/schema';
+import { heroCrops, type HeroCrop } from '../lib/hero-image';
+
+interface Props {
+  image: HeroImage;
+  class?: string;
+}
+
+const { image, class: className } = Astro.props;
+const crops = heroCrops(image);
+
+async function variant(crop: HeroCrop, format: 'avif' | 'webp') {
+  return getImage({
+    src: crop.url,
+    width: crop.width,
+    height: crop.height,
+    widths: crop.widths,
+    format,
+  });
+}
+
+const images = crops && {
+  phoneAvif: await variant(crops.phone, 'avif'),
+  phoneWebp: await variant(crops.phone, 'webp'),
+  desktopAvif: await variant(crops.desktop, 'avif'),
+  desktopWebp: await variant(crops.desktop, 'webp'),
+};
+const DESKTOP = '(min-width: 48rem)';
+// object-cover draws the crops wider than the viewport when the hero box is taller than the
+// crop (phones: about 1.5×; tablets: about 2×; small laptops: about 1400 px), so ask for
+// files that wide instead of 100vw.
+const PHONE_SIZES = '150vw';
+const DESKTOP_SIZES = '(max-width: 63.99rem) 200vw, (max-width: 87.5rem) 1400px, 100vw';
+---
+
+{crops && images && (
+  <picture>
+    <source
+      media={DESKTOP}
+      type="image/avif"
+      srcset={images.desktopAvif.srcSet.attribute}
+      sizes={DESKTOP_SIZES}
+    />
+    <source
+      media={DESKTOP}
+      type="image/webp"
+      srcset={images.desktopWebp.srcSet.attribute}
+      sizes={DESKTOP_SIZES}
+    />
+    <source type="image/avif" srcset={images.phoneAvif.srcSet.attribute} sizes={PHONE_SIZES} />
+    <img
+      src={images.phoneWebp.src}
+      srcset={images.phoneWebp.srcSet.attribute}
+      sizes={PHONE_SIZES}
+      width={crops.phone.width}
+      height={crops.phone.height}
+      alt=""
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      class={className}
+    />
+  </picture>
+)}

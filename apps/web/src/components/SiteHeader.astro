@@ -1,0 +1,162 @@
+---
+/**
+ * Site header: club logo, main menu and the signup call to action.
+ * The full menu needs about 780 px, so it is shown from lg (1024 px); below that a native
+ * <details> disclosure works without JavaScript, and a small script only adds the expected
+ * extras (close on Escape, outside tap, focus leaving, back/forward cache). From sm the
+ * signup button stays visible next to "Menu". The row may wrap when text is enlarged, so
+ * nothing overlaps.
+ */
+import { Image } from 'astro:assets';
+import { mainNav, signupLink, site } from '../config/site';
+import { ariaCurrentFor } from '../lib/url';
+
+const currentPath = Astro.url.pathname;
+const signupCurrent = ariaCurrentFor(currentPath, signupLink.href);
+const focusRing =
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
+// Hover shows a red underline; the current page keeps a white one.
+const linkClass = `rounded px-1 py-1 font-medium whitespace-nowrap text-white/85 decoration-2 underline-offset-8 hover:text-white hover:underline hover:decoration-brand-red-bright [&[aria-current]]:text-white [&[aria-current]]:underline [&[aria-current]]:decoration-white ${focusRing}`;
+// 44 px tall like the Menu button. forced-colors:border-2 keeps the button shape in Windows
+// contrast themes (no change otherwise). The display (inline-flex / flex) is set where used.
+const ctaClass = `h-11 items-center rounded-md bg-brand-red px-4 font-semibold whitespace-nowrap text-white hover:bg-brand-red-dark forced-colors:border-2 ${focusRing}`;
+const mobileLinkClass = `block rounded px-3 py-2.5 font-medium text-white/85 hover:bg-white/10 hover:text-white [&[aria-current]]:text-white [&[aria-current]]:underline [&[aria-current]]:underline-offset-8 ${focusRing}`;
+---
+
+<header class="bg-ink text-white">
+  <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
+    <a href="/" class={`flex items-center gap-3 rounded ${focusRing}`}>
+      <Image
+        src={site.logo}
+        alt=""
+        width={96}
+        height={96}
+        loading="eager"
+        class="size-12 rounded-full"
+      />
+      <span class="text-lg font-extrabold tracking-wider uppercase sm:text-xl sm:tracking-widest">
+        {site.name}
+      </span>
+    </a>
+
+    <nav aria-label="Menu główne" class="hidden lg:block">
+      <ul class="flex items-center gap-6">
+        {mainNav.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class={linkClass}
+              aria-current={ariaCurrentFor(currentPath, link.href)}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+        <li>
+          <a href={signupLink.href} class={`inline-flex ${ctaClass}`} aria-current={signupCurrent}>
+            {signupLink.label}
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="ml-auto flex items-center gap-3 lg:hidden">
+      <a
+        href={signupLink.href}
+        class={`hidden sm:inline-flex ${ctaClass}`}
+        aria-current={signupCurrent}
+      >
+        {signupLink.label}
+      </a>
+      <details data-menu class="group relative">
+        <summary
+          class={`block h-11 list-none rounded-md border border-white/40 px-3 font-medium group-open:bg-white/10 hover:bg-white/10 [&::-webkit-details-marker]:hidden ${focusRing}`}
+        >
+          <span class="flex h-full items-center gap-2">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              class="size-5 group-open:hidden"
+            >
+              <path d="M4 7h16M4 12h16M4 17h16"></path>
+            </svg>
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              class="hidden size-5 group-open:block"
+            >
+              <path d="M6 6l12 12M18 6L6 18"></path>
+            </svg>
+            Menu
+          </span>
+        </summary>
+        <nav
+          aria-label="Menu mobilne"
+          class="absolute right-0 z-40 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-md border border-white/20 bg-ink p-2 shadow-lg"
+        >
+          <ul class="flex flex-col">
+            {mainNav.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class={mobileLinkClass}
+                  aria-current={ariaCurrentFor(currentPath, link.href)}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+            <li class="p-1 pt-2 sm:hidden">
+              <a
+                href={signupLink.href}
+                class={`flex justify-center ${ctaClass}`}
+                aria-current={signupCurrent}
+              >
+                {signupLink.label}
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Progressive enhancement for the mobile menu (the <details> works without this script).
+  const menu = document.querySelector<HTMLDetailsElement>('details[data-menu]');
+  const summary = menu?.querySelector('summary');
+  if (menu && summary) {
+    const close = () => {
+      menu.open = false;
+    };
+    // Escape closes the menu and returns focus to "Menu".
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menu.open) {
+        close();
+        summary.focus();
+      }
+    });
+    // A tap or click outside closes it (pointerdown also catches the start of a scroll).
+    document.addEventListener('pointerdown', (event) => {
+      if (menu.open && event.target instanceof Node && !menu.contains(event.target)) close();
+    });
+    // Tabbing out of the menu closes it, so it never covers the next focused element.
+    menu.addEventListener('focusout', (event) => {
+      const next = event.relatedTarget;
+      if (menu.open && next instanceof Node && !menu.contains(next)) close();
+    });
+    // A page restored from the back/forward cache starts with the menu closed.
+    addEventListener('pageshow', (event) => {
+      if (event.persisted) close();
+    });
+  }
+</script>

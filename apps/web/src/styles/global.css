@@ -1,0 +1,114 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. The club colours are red, blue, white and black.
+ * Text colours are checked against WCAG AA contrast (4.5:1) on their intended backgrounds.
+ */
+@theme {
+  /* Buttons and accents on light backgrounds; white text on it is about 5.9:1. */
+  --color-brand-red: #c8102e;
+  --color-brand-red-dark: #9e0c24;
+  /* Small text on dark backgrounds (about 6.4:1 on ink). */
+  --color-brand-red-bright: #ff5a5f;
+  --color-brand-blue: #1f3f8f;
+  /* Near-black page sections. */
+  --color-ink: #0b0b0d;
+  --color-paper: #ffffff;
+
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+}
+
+/* Rich text from the CMS (news, coach bios, FAQ answers...). */
+@layer components {
+  /* max-w-prose (65ch): comfortable line length for longer texts on wide screens. */
+  .prose-club {
+    @apply max-w-prose space-y-4 text-lg leading-relaxed text-ink/90;
+  }
+  .prose-club h2 {
+    @apply pt-2 text-2xl font-bold text-ink;
+  }
+  .prose-club h3 {
+    @apply text-xl font-bold text-ink;
+  }
+  .prose-club a {
+    @apply rounded font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red;
+  }
+  .prose-club ul {
+    @apply list-disc space-y-1 pl-6;
+  }
+  .prose-club ol {
+    @apply list-decimal space-y-1 pl-6;
+  }
+  .prose-club blockquote {
+    @apply border-l-4 border-brand-red pl-4 italic;
+  }
+}
+
+/*
+ * Interaction feedback and motion: short, CSS only, and switched off when the visitor asks for
+ * reduced motion. Measured budget: about +0.3 KB gzip of CSS, 0 B of JavaScript, CLS 0, no
+ * animation running after load. Deliberately NOT used (measured as slower or harmful): hero
+ * entrance, scroll-reveal, cross-document view transitions, smooth scrolling, hover lifts.
+ */
+@layer base {
+  /* Tailwind's preflight hides the native tap highlight; bring back a subtle club-red one, so
+     a tap on a phone is acknowledged before the next page paints. */
+  a,
+  button,
+  summary {
+    -webkit-tap-highlight-color: rgb(200 16 46 / 0.25);
+  }
+  /* Tailwind 4 no longer gives buttons a pointer cursor. */
+  button:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* Hover colour changes fade instead of flickering. outline-color is left out on purpose,
+       so keyboard focus rings still appear instantly. */
+    a,
+    button,
+    summary {
+      transition-property: color, background-color, border-color, text-decoration-color;
+      transition-duration: 150ms;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+}
+
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Mobile menu: the panel grows out of the "Menu" button; closing stays instant. */
+    header details[open] > nav {
+      transform-origin: top right;
+      animation: menu-in 160ms cubic-bezier(0.2, 0, 0, 1);
+    }
+  }
+  /* FAQ answers slide open where the browser can animate to height: auto (Chromium 129+);
+     other browsers keep the native instant toggle. Scoped to <main>: not the header menu. */
+  @supports (interpolate-size: allow-keywords) {
+    @media (prefers-reduced-motion: no-preference) {
+      main details {
+        interpolate-size: allow-keywords;
+      }
+      main details::details-content {
+        block-size: 0;
+        overflow-y: clip;
+        transition:
+          block-size 200ms cubic-bezier(0.2, 0, 0, 1),
+          content-visibility 200ms allow-discrete;
+      }
+      main details[open]::details-content {
+        block-size: auto;
+      }
+    }
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem) scale(0.98);
+  }
+}

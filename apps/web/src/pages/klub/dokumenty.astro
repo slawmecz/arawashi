@@ -1,0 +1,52 @@
+---
+/** Downloadable club documents, grouped by category. */
+import EmptyState from '../../components/EmptyState.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSiteContent } from '../../lib/content';
+import { documentCategories } from '../../lib/content/schema';
+
+const { documents } = await getSiteContent();
+const categoryTitle = {
+  standardy: 'Standardy ochrony małoletnich',
+  rodo: 'Ochrona danych osobowych (RODO)',
+  regulamin: 'Regulaminy',
+  inne: 'Inne dokumenty',
+} as const;
+const sections = documentCategories
+  .map((category) => ({ category, items: documents.filter((doc) => doc.category === category) }))
+  .filter((section) => section.items.length > 0);
+---
+
+<BaseLayout
+  title="Dokumenty"
+  description="Standardy ochrony małoletnich, regulamin klubu i dokumenty RODO do pobrania."
+>
+  <PageHeader title="Dokumenty" back={{ href: '/klub/', label: 'Poznaj Arawashi' }} />
+  <div class="mx-auto max-w-6xl space-y-10 px-4 py-12 *:max-w-4xl">
+    {sections.length > 0 ? (
+      sections.map(({ category, items }) => (
+        <section aria-labelledby={`dokumenty-${category}`}>
+          <h2 id={`dokumenty-${category}`} class="mb-4 text-2xl font-bold">
+            {categoryTitle[category]}
+          </h2>
+          <ul class="space-y-3">
+            {items.map((doc) => (
+              <li>
+                <a
+                  href={doc.url}
+                  class="rounded text-lg font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red"
+                >
+                  {doc.title}
+                </a>
+                {doc.description && <p class="text-ink/80">{doc.description}</p>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    ) : (
+      <EmptyState message="Dokumenty klubu pojawią się tu wkrótce." />
+    )}
+  </div>
+</BaseLayout>

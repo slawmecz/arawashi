@@ -1,0 +1,141 @@
+---
+/**
+ * Site footer on a light grey band (the club asked for the logos and contact to stand out on
+ * a different background): the club logo and partner logos on the left (each links to the
+ * organisation's website), contact on the right. Contact details and social links come from
+ * the CMS.
+ */
+import { Image } from 'astro:assets';
+import { partners, site } from '../config/site';
+import { getSiteContent } from '../lib/content';
+import { nbsp } from '../lib/typography';
+import SocialIcon from './SocialIcon.astro';
+
+const { settings } = await getSiteContent();
+const year = new Date().getFullYear();
+// The contact page is linked only when it has something to show (it is not linked from itself).
+const contactPageHasContent = Boolean(
+  settings.phone ||
+  settings.email ||
+  settings.address ||
+  settings.venues.length > 0 ||
+  settings.facebookUrl ||
+  settings.instagramUrl,
+);
+const showContactPageLink = contactPageHasContent && !Astro.url.pathname.startsWith('/kontakt');
+const focusRing =
+  'focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red';
+const linkClass = `rounded font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark ${focusRing}`;
+---
+
+<footer class="border-t-4 border-brand-red bg-zinc-100 text-ink">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-10 md:grid-cols-[2fr_1fr]">
+    <section aria-labelledby="stopka-partnerzy">
+      <h2 id="stopka-partnerzy" class="sr-only">
+        Klub i&nbsp;partnerzy
+      </h2>
+      {/* 2×2 on narrow phones, one row from 30rem. */}
+      <ul class="grid grid-cols-2 items-center gap-6 min-[30rem]:flex min-[30rem]:flex-wrap">
+        <li>
+          <a href="/" class={`block w-fit rounded ${focusRing}`}>
+            <Image
+              src={site.logo}
+              alt={`${site.name} — strona główna`}
+              width={128}
+              height={128}
+              class="size-16 rounded-full"
+            />
+          </a>
+        </li>
+        {partners.map((partner) => (
+          <li>
+            <a href={partner.href} class={`group block w-fit rounded ${focusRing}`}>
+              {partner.logo ? (
+                /* multiply: the logos' white JPG background blends into the grey band. */
+                <Image
+                  src={partner.logo}
+                  alt={partner.name}
+                  height={128}
+                  class="h-16 w-auto mix-blend-multiply group-hover:opacity-80 motion-safe:transition-opacity"
+                />
+              ) : (
+                <span class="inline-flex h-16 items-center px-1 text-lg font-extrabold tracking-widest">
+                  {/* The visible short name is part of the link name (WCAG 2.5.3). */}
+                  {partner.shortName}
+                  <span class="sr-only"> ({partner.name})</span>
+                </span>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section aria-labelledby="stopka-kontakt">
+      <h2 id="stopka-kontakt" class="text-lg font-bold">
+        Kontakt
+      </h2>
+      {settings.phone || settings.email ? (
+        <ul class="mt-2 space-y-1 text-ink/90">
+          {settings.phone && (
+            <li>
+              Tel.{' '}
+              <a href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`} class={linkClass}>
+                {settings.phone}
+              </a>
+            </li>
+          )}
+          {settings.email && (
+            <li>
+              <a href={`mailto:${settings.email}`} class={`${linkClass} wrap-anywhere`}>
+                {settings.email}
+              </a>
+            </li>
+          )}
+        </ul>
+      ) : (
+        <p class="mt-2 text-ink/80">Dane kontaktowe pojawią się wkrótce.</p>
+      )}
+      {(settings.facebookUrl || settings.instagramUrl) && (
+        <ul class="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+          {settings.facebookUrl && (
+            <li>
+              <a href={settings.facebookUrl} class={`inline-flex items-center gap-2 ${linkClass}`}>
+                <SocialIcon network="facebook" />
+                Facebook
+              </a>
+            </li>
+          )}
+          {settings.instagramUrl && (
+            <li>
+              <a href={settings.instagramUrl} class={`inline-flex items-center gap-2 ${linkClass}`}>
+                <SocialIcon network="instagram" />
+                Instagram
+              </a>
+            </li>
+          )}
+        </ul>
+      )}
+      {showContactPageLink && (
+        <a href="/kontakt/" class={`mt-3 inline-block ${linkClass}`}>
+          Przejdź do strony kontaktowej
+        </a>
+      )}
+    </section>
+  </div>
+
+  <div class="border-t border-ink/10">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm text-ink/70">
+      <p>
+        © {year}
+        {nbsp(site.fullName)}
+      </p>
+      <a
+        href="/polityka-prywatnosci/"
+        class={`inline-block rounded py-1 underline underline-offset-4 hover:text-ink ${focusRing}`}
+      >
+        Polityka prywatności
+      </a>
+    </div>
+  </div>
+</footer>

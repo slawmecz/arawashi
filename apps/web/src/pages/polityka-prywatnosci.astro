@@ -1,0 +1,93 @@
+---
+/**
+ * Privacy policy — a DRAFT describing how this website processes data.
+ * The club (the data controller) must complete and approve it before launch;
+ * until then the page is excluded from search engines.
+ */
+import PageHeader from '../components/PageHeader.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSiteContent } from '../lib/content';
+
+const { settings } = await getSiteContent();
+// Built here so the punctuation stays attached ("„Arawashi”, ul. …") whatever the formatter does.
+const controller = ['Stowarzyszenie Sportu i\u00a0Rekreacji „Arawashi”', settings.address]
+  .filter(Boolean)
+  .join(', ');
+---
+
+<BaseLayout
+  title="Polityka prywatności"
+  description="Jak strona klubu Arawashi przetwarza dane osobowe."
+  noindex
+>
+  <PageHeader title="Polityka prywatności" />
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <div class="prose-club">
+      <p class="rounded-lg border-2 border-brand-red p-4 not-italic">
+        Wersja robocza&nbsp;— treść zostanie uzupełniona i&nbsp;zatwierdzona przez klub.
+      </p>
+
+      <h2>Administrator danych</h2>
+      <p>
+        Administratorem danych osobowych jest {controller}.
+        {settings.email && (
+          <>
+            Kontakt:{' '}
+            <a href={`mailto:${settings.email}`} class="wrap-anywhere">
+              {settings.email}
+            </a>
+          </>
+        )}
+      </p>
+
+      <h2>Formularz zapisu</h2>
+      <p>
+        Dane podane w&nbsp;formularzu „Zapisz się do klubu” (imię i&nbsp;nazwisko oraz data
+        urodzenia dziecka, wybrana grupa, imię i&nbsp;nazwisko, telefon
+        <span class="whitespace-nowrap">i&nbsp;e-mail</span> rodzica lub opiekuna) przetwarzamy, aby
+        obsłużyć zgłoszenie i&nbsp;skontaktować się w&nbsp;sprawie zapisu. Zgłoszenie jest wysyłane{' '}
+        <span class="whitespace-nowrap">e-mailem</span> do klubu i&nbsp;nie jest przechowywane przez
+        stronę internetową. Okres przechowywania zgłoszeń w&nbsp;skrzynce klubu: [do uzupełnienia
+        przez klub].
+      </p>
+
+      <h2>Podmioty, którym powierzamy dane</h2>
+      <ul>
+        <li>
+          GitHub (hosting strony)&nbsp;— rejestruje adresy IP odwiedzających w&nbsp;celach
+          bezpieczeństwa.
+        </li>
+        <li>Cloudflare (obsługa formularza i&nbsp;ochrona przed spamem&nbsp;— Turnstile).</li>
+        <li>
+          Brevo (wysyłka wiadomości <span class="whitespace-nowrap">e-mail</span> ze zgłoszeniem).
+        </li>
+        <li>
+          Sanity (system zarządzania treścią strony&nbsp;— nie przechowuje danych
+          z&nbsp;formularza).
+        </li>
+        <li>
+          Dostawca skrzynki <span class="whitespace-nowrap">e-mail</span> klubu: [do uzupełnienia].
+        </li>
+      </ul>
+
+      <h2>Pliki cookies</h2>
+      <p>
+        Strona nie używa plików cookies ani narzędzi śledzących. Nie osadzamy treści
+        z&nbsp;Facebooka, Instagrama, YouTube ani Map Google&nbsp;— prowadzą do nich zwykłe linki.
+      </p>
+
+      <h2>Twoje prawa</h2>
+      <p>
+        Masz prawo dostępu do swoich danych, ich sprostowania, usunięcia lub ograniczenia
+        przetwarzania, prawo sprzeciwu, prawo przenoszenia danych oraz prawo wniesienia skargi do
+        Prezesa Urzędu Ochrony Danych Osobowych (ul.&nbsp;Stawki&nbsp;2, 00-193&nbsp;Warszawa).
+      </p>
+
+      <h2>Wizerunek</h2>
+      <p>
+        Zdjęcia dzieci publikujemy wyłącznie za pisemną zgodą rodziców lub opiekunów. Zgodę można
+        w&nbsp;każdej chwili wycofać&nbsp;— zdjęcie zostanie wtedy usunięte ze strony.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

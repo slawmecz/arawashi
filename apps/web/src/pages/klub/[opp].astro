@@ -1,0 +1,47 @@
+---
+/**
+ * "Przekaż 1,5% podatku" — built only when the club is a public benefit organisation (OPP)
+ * and has a KRS number; otherwise donating 1.5% of tax to it is not possible.
+ */
+import type { GetStaticPaths } from 'astro';
+import PageHeader from '../../components/PageHeader.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSiteContent } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const { settings } = await getSiteContent();
+  return settings.isOpp && settings.krs
+    ? [{ params: { opp: 'przekaz-1-5-procent' }, props: { krs: settings.krs } }]
+    : [];
+}) satisfies GetStaticPaths;
+
+interface Props {
+  krs: string;
+}
+
+const { krs } = Astro.props;
+---
+
+<BaseLayout
+  title="Przekaż 1,5% podatku"
+  description="Wesprzyj klub Arawashi, przekazując 1,5% podatku."
+>
+  <PageHeader title="Przekaż 1,5% podatku" back={{ href: '/klub/', label: 'Poznaj Arawashi' }} />
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <div class="max-w-prose space-y-6 text-lg">
+      <p>
+        Rozliczając podatek PIT, możesz bezpłatnie przekazać 1,5% podatku na rzecz naszego klubu.
+        Wystarczy wpisać w&nbsp;zeznaniu podatkowym (lub w&nbsp;usłudze Twój{' '}
+        <span class="whitespace-nowrap">e-PIT</span>) numer KRS:
+      </p>
+      <p class="rounded-lg bg-ink p-6 text-center text-white">
+        <span class="block text-sm tracking-widest uppercase">Numer KRS</span>
+        <span class="mt-1 block text-3xl font-extrabold tracking-wider">{krs}</span>
+      </p>
+      <p>
+        Dziękujemy! Każda złotówka wspiera treningi, obozy i&nbsp;wyjazdy na zawody naszych
+        zawodników.
+      </p>
+    </div>
+  </div>
+</BaseLayout>
