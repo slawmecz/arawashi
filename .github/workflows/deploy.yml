@@ -41,6 +41,8 @@ jobs:
           SANITY_READ_TOKEN: ${{ secrets.SANITY_READ_TOKEN }}
           PUBLIC_SIGNUP_ENDPOINT: ${{ vars.PUBLIC_SIGNUP_ENDPOINT }}
           PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+          # "test" for the public test copy (noindex, banner); see docs/setup.md step 0.
+          SITE_STAGE: ${{ vars.SITE_STAGE || 'production' }}
 
       # The built site is published as an artifact; it is never committed to the repository.
       - uses: actions/upload-pages-artifact@v5
