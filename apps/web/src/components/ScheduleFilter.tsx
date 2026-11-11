@@ -76,7 +76,7 @@ export default function ScheduleFilter({ rows, groups }: Props) {
         aria-label="Tabela z grafikiem zajęć"
       >
         <table className="w-full min-w-[32rem] border-collapse text-left">
-          <caption className="sr-only">Grafik zajęć{selected ? ` — ${selected}` : ''}</caption>
+          <caption className="sr-only">Grafik zajęć{selected ? ` – ${selected}` : ''}</caption>
           <thead>
             <tr className="border-b-2 border-ink">
               <th scope="col" className="py-2 pr-4">
@@ -101,7 +101,7 @@ export default function ScheduleFilter({ rows, groups }: Props) {
                   {row.start}–{row.end}
                 </td>
                 <td className="py-3 pr-4">{nbsp(row.groupName)}</td>
-                <td className="py-3">{row.venue ?? '—'}</td>
+                <td className="py-3">{row.venue ?? '–'}</td>
               </tr>
             ))}
           </tbody>

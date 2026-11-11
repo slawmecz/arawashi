@@ -1,4 +1,4 @@
-# 0004 — Signup form handled by a stateless Cloudflare Worker
+# 0004 – Signup form handled by a stateless Cloudflare Worker
 
 - **Status:** Accepted
 - **Date:** 2026-11-06

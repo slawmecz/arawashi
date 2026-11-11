@@ -7,6 +7,7 @@
  * attributes, scripts, styles, SVG, templates, <select> (options never wrap) and comments are
  * dropped. Then:
  * - punctuation: a word followed by whitespace and . , ; : ! ? is an error ("nami .");
+ * - long dash: the site uses only the short dash (U+2013), never U+2014;
  * - hanging letters: a one-letter word (a, i, o, u, w, z) followed by any breakable whitespace
  *   (space, tab, line break; also after a non-breaking space) and a next word is an error.
  */
@@ -30,6 +31,8 @@ export function renderedText(html) {
   return decode(body.replace(SKIPPED, '').replace(BLOCK_TAG, BLOCK).replace(ANY_TAG, ''));
 }
 
+/** The site uses the short dash (U+2013) only; a long dash (U+2014) is an error. */
+const LONG_DASH = new RegExp(String.fromCharCode(0x2014), 'g');
 /** A letter, digit or closing quote/bracket, ordinary whitespace, then punctuation. */
 const SPACE_BEFORE_PUNCTUATION = /([\p{L}\p{N}”)])[ \t\r\n]+([.,;:!?])(?![\p{L}\p{N}])/gu;
 /**
@@ -56,6 +59,9 @@ export function findTypographyProblems(html) {
   const problems = [];
   for (const m of text.matchAll(SPACE_BEFORE_PUNCTUATION)) {
     problems.push(`space before "${m[2]}" in ${snippet(text, m.index)}`);
+  }
+  for (const m of text.matchAll(LONG_DASH)) {
+    problems.push(`long dash in ${snippet(text, m.index)} (the site uses the short dash)`);
   }
   for (const m of text.matchAll(HANGING_LETTER)) {
     problems.push(`hanging "${m[0]}" in ${snippet(text, m.index)} (~ = non-breaking space)`);

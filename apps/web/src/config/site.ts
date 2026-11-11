@@ -4,6 +4,7 @@
  * so it is deliberately not stored here.
  */
 import type { ImageMetadata } from 'astro';
+import heroPhoto from '../assets/hero/karate-belt.jpg';
 import clubLogo from '../assets/logos/arawashi-logo.png';
 import gminaSiechniceLogo from '../assets/logos/gmina-siechnice-logo.jpg';
 import pukLogo from '../assets/logos/polska-unia-karate-logo.jpg';
@@ -12,8 +13,19 @@ export const site = {
   name: 'Arawashi',
   fullName: 'Stowarzyszenie Sportu i Rekreacji „Arawashi”',
   url: 'https://arawashi.eu',
-  description: 'Arawashi — klub karate WKF z gminy Siechnice. Szacunek, dyscyplina, charakter.',
+  description: 'Arawashi – klub karate WKF z gminy Siechnice. Szacunek, dyscyplina, charakter.',
   logo: clubLogo,
+} as const;
+
+/**
+ * Default home page photo, used until the club sets its own in the CMS. Free to use
+ * (also commercially, no attribution required) under the Unsplash License; no face visible.
+ */
+export const defaultHeroPhoto = {
+  src: heroPhoto,
+  author: 'Nguyen Hung',
+  source: 'https://unsplash.com/photos/FktPF6cwIWo',
+  license: 'Unsplash License (https://unsplash.com/license)',
 } as const;
 
 export interface NavLink {

@@ -9,7 +9,7 @@ import {
   type SignupFields,
 } from './index';
 
-/** Synthetic test data only — never use real people's details in tests. */
+/** Synthetic test data only – never use real people's details in tests. */
 const valid: SignupFields = {
   childName: 'Jan Testowy',
   childBirthDate: '2016-05-20',

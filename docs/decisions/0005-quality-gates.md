@@ -1,4 +1,4 @@
-# 0005 — Quality gates: lint, types, tests and accessibility in CI
+# 0005 – Quality gates: lint, types, tests and accessibility in CI
 
 - **Status:** Accepted
 - **Date:** 2026-11-06

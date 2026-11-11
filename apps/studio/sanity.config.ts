@@ -15,7 +15,7 @@ const dataset = process.env.SANITY_STUDIO_DATASET ?? 'production';
 
 export default defineConfig({
   name: 'arawashi',
-  title: 'Arawashi — panel strony',
+  title: 'Arawashi – panel strony',
   projectId,
   dataset,
   plugins: [

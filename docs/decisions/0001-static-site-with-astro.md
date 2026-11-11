@@ -1,4 +1,4 @@
-# 0001 — Static site built with Astro and React islands
+# 0001 – Static site built with Astro and React islands
 
 - **Status:** Accepted
 - **Date:** 2026-11-06

@@ -1,4 +1,4 @@
-# 0002 — Hosting on GitHub Pages, deployed by GitHub Actions
+# 0002 – Hosting on GitHub Pages, deployed by GitHub Actions
 
 - **Status:** Accepted
 - **Date:** 2026-11-06

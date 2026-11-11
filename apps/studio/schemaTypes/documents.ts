@@ -29,7 +29,7 @@ export const siteSettings = defineType({
       name: 'isOpp',
       title: 'Klub jest organizacją pożytku publicznego (OPP)',
       description:
-        'Zaznacz tylko wtedy, gdy klub jest w wykazie OPP — pojawi się strona „Przekaż 1,5% podatku” (wymaga numeru KRS).',
+        'Zaznacz tylko wtedy, gdy klub jest w wykazie OPP – pojawi się strona „Przekaż 1,5% podatku” (wymaga numeru KRS).',
       type: 'boolean',
       initialValue: false,
     }),
@@ -38,7 +38,7 @@ export const siteSettings = defineType({
       title: 'Zdjęcie w tle hasła na stronie głównej',
       // Uploaded files are reachable by URL immediately (public dataset), even before publishing.
       description:
-        'Ogólne zdjęcie z karate, na którym nie da się rozpoznać dzieci (np. ręce i pas, sylwetka) — z banku zdjęć albo wygenerowane przez AI. Przeciągnij kółko na najważniejszą część zdjęcia: telefony pokażą wycinek wokół niego. Bez zdjęcia strona pokazuje ciemne tło. Wgrany plik jest od razu dostępny pod swoim adresem internetowym.',
+        'Ogólne zdjęcie z karate, na którym nie da się rozpoznać dzieci (np. ręce i pas, sylwetka) – z banku zdjęć albo wygenerowane przez AI. Przeciągnij kółko na najważniejszą część zdjęcia: telefony pokażą wycinek wokół niego. Bez zdjęcia strona pokazuje ciemne tło. Wgrany plik jest od razu dostępny pod swoim adresem internetowym.',
       type: 'image',
       options: { hotspot: true },
       fields: [

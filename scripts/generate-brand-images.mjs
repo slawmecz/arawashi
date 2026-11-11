@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Generates the static brand images in apps/web/public from the club logo:
- * - og-default.png (1200×630) — preview image when a page is shared on Facebook/Messenger;
- * - apple-touch-icon.png (180×180) and icon-512.png — home-screen icons.
+ * - og-default.png (1200×630) – preview image when a page is shared on Facebook/Messenger;
+ * - apple-touch-icon.png (180×180) and icon-512.png – home-screen icons.
  *
  * Run again after replacing the logo: `node scripts/generate-brand-images.mjs`.
  * Uses sharp, which Astro already installs for image optimisation.

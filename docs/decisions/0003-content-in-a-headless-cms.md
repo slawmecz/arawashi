@@ -1,4 +1,4 @@
-# 0003 — Club content in a headless CMS (Sanity), not in git
+# 0003 – Club content in a headless CMS (Sanity), not in git
 
 - **Status:** Accepted (subject to a usability test with the club's editors)
 - **Date:** 2026-11-06

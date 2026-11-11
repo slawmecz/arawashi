@@ -1,7 +1,11 @@
 ---
-/** Signup page: the form island plus the short GDPR information notice it links to. */
+/**
+ * Signup page: the form island, the other ways to get in touch (phone, e-mail, Facebook,
+ * Instagram, as the club's brief asks; shown when set in the CMS) and the short GDPR notice.
+ */
 import PageHeader from '../components/PageHeader.astro';
 import SignupForm from '../components/SignupForm';
+import SocialIcon from '../components/SocialIcon.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getSiteContent } from '../lib/content';
 
@@ -10,6 +14,9 @@ const telHref = settings.phone ? `tel:${settings.phone.replace(/[^\d+]/g, '')}` 
 const contactLinkClass =
   'rounded font-semibold text-brand-red underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red';
 const groupNames = groups.map((group) => group.name);
+const hasOtherContact = Boolean(
+  settings.phone || settings.email || settings.facebookUrl || settings.instagramUrl,
+);
 ---
 
 <BaseLayout
@@ -25,6 +32,55 @@ const groupNames = groups.map((group) => group.name);
     <div>
       <SignupForm client:load groups={groupNames} phone={settings.phone} email={settings.email} />
     </div>
+    {hasOtherContact && (
+      <section
+        aria-labelledby="inny-kontakt"
+        class="rounded-lg border-l-4 border-brand-red bg-ink/5 p-6"
+      >
+        <h2 id="inny-kontakt" class="text-xl font-bold">
+          Wolisz zadzwonić lub napisać?
+        </h2>
+        <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-lg">
+          {settings.phone && (
+            <li>
+              Tel.{' '}
+              <a href={telHref} class={contactLinkClass}>
+                {settings.phone}
+              </a>
+            </li>
+          )}
+          {settings.email && (
+            <li>
+              <a href={`mailto:${settings.email}`} class={`${contactLinkClass} wrap-anywhere`}>
+                {settings.email}
+              </a>
+            </li>
+          )}
+          {settings.facebookUrl && (
+            <li>
+              <a
+                href={settings.facebookUrl}
+                class={`inline-flex items-center gap-2 ${contactLinkClass}`}
+              >
+                <SocialIcon network="facebook" />
+                Facebook
+              </a>
+            </li>
+          )}
+          {settings.instagramUrl && (
+            <li>
+              <a
+                href={settings.instagramUrl}
+                class={`inline-flex items-center gap-2 ${contactLinkClass}`}
+              >
+                <SocialIcon network="instagram" />
+                Instagram
+              </a>
+            </li>
+          )}
+        </ul>
+      </section>
+    )}
     <noscript>
       <p class="rounded-lg border-2 border-brand-red p-4">
         Formularz wymaga włączonej obsługi JavaScript w&nbsp;przeglądarce.
@@ -59,7 +115,7 @@ const groupNames = groups.map((group) => group.name);
         </p>
         <p>
           Zgłoszenie jest wysyłane <span class="whitespace-nowrap">e-mailem</span> bezpośrednio do
-          klubu&nbsp;— strona internetowa go nie przechowuje. Przy wysyłce korzystamy z&nbsp;usług
+          klubu&nbsp;– strona internetowa go nie przechowuje. Przy wysyłce korzystamy z&nbsp;usług
           Cloudflare (ochrona przed spamem) i&nbsp;Brevo (wysyłka wiadomości). Podanie danych jest
           dobrowolne, ale niezbędne do rozpatrzenia zgłoszenia.
         </p>

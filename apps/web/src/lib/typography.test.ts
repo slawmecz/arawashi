@@ -21,7 +21,9 @@ describe('nbsp', () => {
   it('keeps abbreviations, postal codes and dashes with their neighbours', () => {
     expect(nbsp('ul. Stawki 2, 00-193 Warszawa')).toBe(n('ul.~Stawki 2, 00-193~Warszawa'));
     expect(nbsp('Sala nr 5')).toBe(n('Sala nr~5'));
-    expect(nbsp('strony — nie przechowuje')).toBe(n('strony~— nie przechowuje'));
+    expect(nbsp('strony – nie przechowuje')).toBe(n('strony~– nie przechowuje'));
+    // A long dash typed in the CMS becomes the short one used across the site.
+    expect(nbsp('strony — nie')).toBe(n('strony~– nie'));
   });
 
   it('treats line breaks, tabs and repeated spaces like a space', () => {
@@ -30,7 +32,7 @@ describe('nbsp', () => {
   });
 
   it('only ever replaces spaces, so the visible text stays the same', () => {
-    const text = 'Zajęcia w sali i na boisku, ul. Szkolna 1, 55-011 Siechnice — zapraszamy';
+    const text = 'Zajęcia w sali i na boisku, ul. Szkolna 1, 55-011 Siechnice – zapraszamy';
     expect(nbsp(text).replaceAll(NBSP, ' ')).toBe(text);
   });
 });

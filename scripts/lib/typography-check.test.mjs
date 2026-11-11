@@ -31,6 +31,13 @@ describe('space before punctuation', () => {
   });
 });
 
+describe('dashes', () => {
+  it('rejects the long dash and accepts the short one', () => {
+    assert.equal(problems('<p>Klub — wartości</p>').length, 1);
+    assert.deepEqual(problems('<p>Klub – wartości, 5–8 lat</p>'), []);
+  });
+});
+
 describe('hanging one-letter words', () => {
   it('finds a plain space, a line break and a non-breaking space followed by a line break', () => {
     assert.equal(problems('<p>Pytania i odpowiedzi</p>').length, 1);
@@ -54,7 +61,7 @@ describe('hanging one-letter words', () => {
     assert.deepEqual(problems('<img alt="i w domu" src="/a.png">'), []);
     assert.deepEqual(problems('<script>const a = "i w";</script><svg><text>i w</text></svg>'), []);
     assert.deepEqual(
-      problems('<select><option>Nie wiem — o pomoc w wyborze</option></select>'),
+      problems('<select><option>Nie wiem – o pomoc w wyborze</option></select>'),
       [],
     );
   });

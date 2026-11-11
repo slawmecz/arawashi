@@ -1,4 +1,4 @@
-# Arawashi — karate club website
+# Arawashi – karate club website
 
 Website of **Arawashi**, a WKF karate club in the Siechnice municipality near Wrocław, Poland.
 The site is in Polish; the code and documentation are in English.
@@ -116,3 +116,7 @@ The source code is available under the [MIT License](LICENSE).
 The MIT License does **not** cover the club name and logo, the logos of Gmina Siechnice,
 Polska Unia Karate and the World Karate Federation, or any club texts and photos. They remain
 the property of their respective owners and are used on the website with permission.
+
+The default home page photo (`apps/web/src/assets/hero/karate-belt.jpg`) is by Nguyen Hung,
+from [Unsplash](https://unsplash.com/photos/FktPF6cwIWo), used under the
+[Unsplash License](https://unsplash.com/license). It is not covered by the MIT License either.

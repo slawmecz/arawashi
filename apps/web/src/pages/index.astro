@@ -5,11 +5,11 @@
  * page never depends on fresh news. The hero shows the club's photo when one is set in the
  * CMS (with the rights confirmed); otherwise a dark gradient.
  */
-import { getImage } from 'astro:assets';
+import { getImage, Picture } from 'astro:assets';
 import HeroPicture from '../components/HeroPicture.astro';
 import { heroCrops } from '../lib/hero-image';
 import SocialIcon from '../components/SocialIcon.astro';
-import { site } from '../config/site';
+import { defaultHeroPhoto, site } from '../config/site';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getSiteContent } from '../lib/content';
 import { formatDate, formatDateRange, upcoming } from '../lib/format';
@@ -41,26 +41,31 @@ const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline
   <script is:inline type="application/ld+json" set:html={jsonLd} />
   {/* grow: on a short page (empty CMS) the hero fills the space above the footer. */}
   <section class="relative isolate flex grow flex-col justify-center overflow-hidden bg-ink text-white">
+    {/* The club's own photo from the CMS, otherwise the default photo (config/site.ts). */}
     {heroImage ? (
-      <>
-        <HeroPicture
-          image={heroImage}
-          class="absolute inset-0 -z-30 size-full object-cover forced-colors:hidden"
-        />
-        {/* Scrim keeping WCAG AA text contrast on any photo: a flat 70 % layer on phones and
-            tablets (text spans the width), a left-to-right gradient from lg (text on the left,
-            photo visible on the right, as in the club's mockup). Re-check with the real photo. */}
-        <div
-          aria-hidden="true"
-          class="absolute inset-0 -z-20 max-lg:bg-ink/70 lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)]"
-        />
-      </>
+      <HeroPicture
+        image={heroImage}
+        class="absolute inset-0 -z-30 size-full object-cover forced-colors:hidden"
+      />
     ) : (
-      <div
-        aria-hidden="true"
-        class="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_at_top_right,var(--color-brand-blue)_0%,transparent_55%)] opacity-40"
+      <Picture
+        src={defaultHeroPhoto.src}
+        alt=""
+        formats={['avif', 'webp']}
+        widths={[640, 960, 1280, 1600, 2400]}
+        sizes="(max-width: 47.99rem) 280vw, (max-width: 63.99rem) 150vw, 90vw"
+        loading="eager"
+        fetchpriority="high"
+        class="absolute inset-y-0 right-0 -z-30 h-full w-full object-cover object-[50%_55%] forced-colors:hidden lg:w-[60%]"
       />
     )}
+    {/* Scrim keeping WCAG AA text contrast on any photo: a flat 70 % layer on phones and
+        tablets (text spans the width), a left-to-right gradient from lg (text on the left,
+        photo visible on the right, as in the club's mockup). Measured: shots/hero-contrast. */}
+    <div
+      aria-hidden="true"
+      class="absolute inset-0 -z-20 max-lg:bg-ink/70 lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)]"
+    />
     {/* Decorative calligraphy: 空手道 (karate-dō, "the way of the empty hand"). */}
     <p
       aria-hidden="true"
@@ -76,7 +81,8 @@ const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline
       <p
         class:list={[
           'flex flex-wrap gap-x-[0.6em] text-sm font-semibold tracking-[0.3em] uppercase',
-          heroImage ? 'text-white/80 lg:text-brand-red-bright' : 'text-brand-red-bright',
+          // Over a photo on phones and tablets, white text keeps the contrast; red from lg.
+          'text-white/80 lg:text-brand-red-bright',
         ]}
       >
         <span class="whitespace-nowrap max-sm:basis-full">Klub karate WKF</span>
@@ -89,7 +95,7 @@ const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline
         Szacunek, dyscyplina, charakter
       </h1>
       <p class="mt-6 max-w-xl text-lg text-white/85 md:text-xl">
-        — wartości, na których szkolimy przyszłych{' '}
+        – wartości, na których szkolimy przyszłych{' '}
         <strong class="text-white uppercase">mistrzów</strong>.
       </p>
       <div class="mt-10 flex flex-wrap gap-4">

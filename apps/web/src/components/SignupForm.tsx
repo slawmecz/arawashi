@@ -39,7 +39,7 @@ const SERVER_MESSAGES: Record<string, string> = {
 };
 const GENERIC_ERROR = 'Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę.';
 /** Offered in the group list; preselected while the club has not entered any groups yet. */
-const NOT_SURE = 'Nie wiem — pomóżcie wybrać';
+const NOT_SURE = 'Nie wiem – pomóżcie wybrać';
 /** Shown while no signup endpoint is configured (e.g. the test copy before the Worker exists). */
 const NOT_CONNECTED = 'Zgłoszenie nie zostało wysłane, bo formularz nie jest jeszcze podłączony.';
 

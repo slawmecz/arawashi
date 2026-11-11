@@ -4,7 +4,8 @@
  * - a single-letter word and the next word ("sierotki": a, i, o, u, w, z),
  * - common abbreviations and what follows them ("ul. Szkolna", "nr 5"),
  * - a postal code and the town ("00-193 Warszawa"),
- * - the word before a spaced dash, so a line never starts with "—".
+ * - the word before a spaced dash, so a line never starts with "–".
+ * It also turns a long dash (U+2014) into the short one (U+2013) used across the site.
  */
 export const NBSP = '\u00a0';
 
@@ -14,11 +15,13 @@ const SINGLE_LETTER = /(?<=^|[\s(„])([aiouwzAIOUWZ])[ \t\r\n]+(?=\S)/g;
 const ABBREVIATION =
   /(?<=^|[\s(„])(ul\.|al\.|pl\.|os\.|nr|tel\.|np\.|godz\.|św\.)[ \t\r\n]+(?=\S)/gi;
 const POSTAL_CODE = /(?<=\b\d{2}-\d{3})[ \t\r\n]+(?=\p{L})/gu;
-const BEFORE_DASH = /[ \t\r\n]+(?=[—–][ \t\r\n])/g;
+const BEFORE_DASH = /[ \t\r\n]+(?=[\u2013\u2014][ \t\r\n])/g;
+const LONG_DASH = /\u2014/g;
 
 /** Applies the non-breaking-space rules to plain text. */
 export function nbsp(text: string): string {
   return text
+    .replace(LONG_DASH, '\u2013')
     .replace(SINGLE_LETTER, `$1${NBSP}`)
     .replace(ABBREVIATION, `$1${NBSP}`)
     .replace(POSTAL_CODE, NBSP)

@@ -71,7 +71,7 @@ export function consentImage(name: string, title: string) {
     type: 'image',
     // Uploaded files are reachable by URL immediately (public dataset), even before publishing.
     description:
-      'Wgrywaj tylko zdjęcia, na których publikację masz już zgodę — wgrany plik jest od razu dostępny pod swoim adresem internetowym. Przed wgraniem wyłącz w telefonie zapisywanie lokalizacji w zdjęciach.',
+      'Wgrywaj tylko zdjęcia, na których publikację masz już zgodę – wgrany plik jest od razu dostępny pod swoim adresem internetowym. Przed wgraniem wyłącz w telefonie zapisywanie lokalizacji w zdjęciach.',
     options: { hotspot: true },
     fields: [
       defineField({
@@ -84,7 +84,7 @@ export function consentImage(name: string, title: string) {
       defineField({
         name: 'consent',
         title:
-          'Potwierdzam: mamy zgodę osób na zdjęciu (a przy dzieciach — zgodę rodziców) albo nikogo nie da się rozpoznać',
+          'Potwierdzam: mamy zgodę osób na zdjęciu (a przy dzieciach – zgodę rodziców) albo nikogo nie da się rozpoznać',
         type: 'boolean',
         initialValue: false,
         validation: (rule) =>

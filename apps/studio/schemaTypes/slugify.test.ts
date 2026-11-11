@@ -6,7 +6,7 @@ const WEBSITE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 describe('slugify', () => {
   it.each([
-    ['Obóz letni 2027 — Żółć i Łódź!', 'oboz-letni-2027-zolc-i-lodz'],
+    ['Obóz letni 2027 – Żółć i Łódź!', 'oboz-letni-2027-zolc-i-lodz'],
     ['  Zawody  w Siechnicach  ', 'zawody-w-siechnicach'],
     ['ĄĆĘŁŃÓŚŹŻ ąćęłńóśźż', 'acelnoszz-acelnoszz'],
     ['Café & karate', 'cafe-karate'],
@@ -16,7 +16,7 @@ describe('slugify', () => {
 
   it('always produces a slug the website accepts', () => {
     for (const title of [
-      'Mistrzostwa Polski — 1. miejsce!',
+      'Mistrzostwa Polski – 1. miejsce!',
       'Półkolonie 2027 (lipiec)',
       '!!!a!!!',
     ]) {
