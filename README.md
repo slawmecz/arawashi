@@ -94,7 +94,8 @@ pnpm dev          # http://localhost:4321
 | `pnpm check:html`  | Check Polish typography in the built HTML (after `pnpm build`)  |
 
 Without a CMS configured, the site builds with "coming soon" sections. Set
-`CONTENT_SOURCE=fixtures` to preview it with synthetic content. The E2E tests build the site with
+`CONTENT_SOURCE=fixtures` to preview it with synthetic content, or `CONTENT_JSON` to build it
+from a private content file that stays out of git (`docs/setup.md`, step 3a). The E2E tests build the site with
 fixtures automatically; on a fresh machine install the browser once with
 `pnpm --filter @arawashi/web exec playwright install chromium`.
 
