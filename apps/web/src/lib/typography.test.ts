@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { NBSP, nbsp, nbspHtml } from './typography';
+import { NBSP, WORD_JOINER, nbsp, nbspHtml } from './typography';
 
-const n = (text: string) => text.replaceAll('~', NBSP);
+/** "~" stands for a non-breaking space, "^" for a word joiner. */
+const n = (text: string) => text.replaceAll('~', NBSP).replaceAll('^', WORD_JOINER);
 
 describe('nbsp', () => {
   it('keeps single-letter words with the next word, including chains', () => {
@@ -19,7 +20,7 @@ describe('nbsp', () => {
   });
 
   it('keeps abbreviations, postal codes and dashes with their neighbours', () => {
-    expect(nbsp('ul. Stawki 2, 00-193 Warszawa')).toBe(n('ul.~Stawki 2, 00-193~Warszawa'));
+    expect(nbsp('ul. Stawki 2, 00-193 Warszawa')).toBe(n('ul.~Stawki 2, 00-^193~Warszawa'));
     expect(nbsp('Sala nr 5')).toBe(n('Sala nr~5'));
     expect(nbsp('strony – nie przechowuje')).toBe(n('strony~– nie przechowuje'));
     // A long dash typed in the CMS becomes the short one used across the site.
@@ -31,9 +32,17 @@ describe('nbsp', () => {
     expect(nbsp('ul.\tSzkolna')).toBe(n('ul.~Szkolna'));
   });
 
-  it('only ever replaces spaces, so the visible text stays the same', () => {
+  it('never splits a postal code at its hyphen, and leaves other numbers alone', () => {
+    expect(nbsp('00-950 Przykładowo')).toBe(n('00-^950~Przykładowo'));
+    // Synthetic numbers only: a phone number, a register number and a date.
+    expect(nbsp('Infolinia 600-700-800, rejestr 0000000000, 2026-01-15')).toBe(
+      'Infolinia 600-700-800, rejestr 0000000000, 2026-01-15',
+    );
+  });
+
+  it('only replaces spaces and adds invisible joiners, so the visible text stays the same', () => {
     const text = 'Zajęcia w sali i na boisku, ul. Szkolna 1, 55-011 Siechnice – zapraszamy';
-    expect(nbsp(text).replaceAll(NBSP, ' ')).toBe(text);
+    expect(nbsp(text).replaceAll(NBSP, ' ').replaceAll(WORD_JOINER, '')).toBe(text);
   });
 });
 

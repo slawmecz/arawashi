@@ -3,7 +3,7 @@
  * (name, logo, contact, social profiles and training venues from the CMS).
  */
 import type { Settings } from './content/schema';
-import { NBSP } from './typography';
+import { NBSP, WORD_JOINER } from './typography';
 
 export function sportsOrganization(settings: Settings, siteUrl: string, logoUrl: string) {
   const sameAs = [settings.facebookUrl, settings.instagramUrl].filter(Boolean);
@@ -31,6 +31,9 @@ export function sportsOrganization(settings: Settings, siteUrl: string, logoUrl:
 
 /** Serialises JSON-LD safely for an inline <script> (no closing-tag injection). */
 export function toJsonLd(data: unknown): string {
-  // Typeset texts carry non-breaking spaces, which mean nothing to search engines.
-  return JSON.stringify(data).replaceAll(NBSP, ' ').replaceAll('<', '\\u003c');
+  // Typeset texts carry non-breaking spaces and word joiners, which mean nothing to search engines.
+  return JSON.stringify(data)
+    .replaceAll(NBSP, ' ')
+    .replaceAll(WORD_JOINER, '')
+    .replaceAll('<', '\\u003c');
 }
