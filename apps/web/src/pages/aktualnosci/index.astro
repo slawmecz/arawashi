@@ -10,6 +10,8 @@ import { formatDate } from '../../lib/format';
 
 const { news, settings } = await getSiteContent();
 const hasSocial = Boolean(settings.facebookUrl || settings.instagramUrl);
+const whereSocial =
+  settings.facebookUrl && settings.instagramUrl ? 'na naszych profilach:' : 'na naszym profilu:';
 const socialClass =
   'inline-flex items-center gap-2 rounded py-1 font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red';
 ---
@@ -54,7 +56,7 @@ const socialClass =
         <EmptyState message="Pierwsze aktualności pojawią się wkrótce." />
         {hasSocial && (
           <p class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-lg">
-            <span>Bieżące informacje znajdziesz też na naszych profilach:</span>
+            <span>Bieżące informacje znajdziesz też {whereSocial}</span>
             {settings.facebookUrl && (
               <a href={settings.facebookUrl} class={socialClass}>
                 <SocialIcon network="facebook" />

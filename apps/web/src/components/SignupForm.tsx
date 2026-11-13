@@ -335,7 +335,12 @@ export default function SignupForm({ groups, phone, email }: Props) {
         </Field>
       </fieldset>
 
-      <div className="space-y-4">
+      {/* Target of "Wróć do formularza" in the privacy section: lands with the fields above it in
+          view and a ring that shows where the reader is, even when the page cannot scroll. */}
+      <div
+        id="oswiadczenia"
+        className="scroll-mt-32 space-y-4 rounded-md target:ring-2 target:ring-brand-blue target:ring-offset-8"
+      >
         <Checkbox name="privacyAcknowledged" error={errors.privacyAcknowledged}>
           Zapoznałem/am się z&nbsp;
           <a

@@ -39,6 +39,9 @@ jobs:
           SANITY_DATASET: ${{ vars.SANITY_DATASET }}
           # Only for a private dataset; empty otherwise.
           SANITY_READ_TOKEN: ${{ secrets.SANITY_READ_TOKEN }}
+          # Until the CMS is connected: the club's content as one-line JSON (docs/setup.md 3a).
+          # A secret keeps the club's data out of the repository; the CMS wins when it is set.
+          CONTENT_JSON: ${{ secrets.SITE_CONTENT_JSON }}
           PUBLIC_SIGNUP_ENDPOINT: ${{ vars.PUBLIC_SIGNUP_ENDPOINT }}
           PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
           # "test" for the public test copy (noindex, banner); see docs/setup.md step 0.

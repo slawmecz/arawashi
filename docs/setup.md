@@ -70,6 +70,25 @@ After DNS propagates, tick **Enforce HTTPS** in the repository Pages settings (i
    wide crop. Without a photo the hero keeps its dark gradient. A dark, low-key photo with the
    subject on the right suits the layout best; the text stays readable on any photo.
 
+### 3a. Before the CMS: content from a private JSON file
+
+Until Sanity is connected, the club's content can come from a JSON file that never enters the
+repository. The file has the shape of `SiteContent` (`apps/web/src/lib/content/schema.ts`;
+`fixtures.ts` is a complete example). Rich-text fields (`aboutHtml`, `bodyHtml`, …) hold plain
+HTML such as `<p>…</p>`.
+
+1. Keep the file outside the repository (or in a git-ignored folder).
+2. Preview it locally (PowerShell):
+   `$env:CONTENT_JSON = Get-Content -Raw content.json; pnpm build; pnpm check:html`
+3. Store it as the repository **secret** `SITE_CONTENT_JSON`, on one line (a multi-line secret
+   is masked line by line in the build log):
+   `node -e "process.stdout.write(JSON.stringify(require('./content.json')))" | gh secret set SITE_CONTENT_JSON`
+4. Run the **Deploy to GitHub Pages** workflow (or push).
+
+An invalid file fails the build, and the site keeps its previous version. The secret limit is
+48 KB. Once Sanity is connected (`SANITY_PROJECT_ID` is set), the CMS wins: move the content into
+the Studio and delete the secret.
+
 ### Rebuild on publish (webhook)
 
 1. GitHub → profile **Settings → Developer settings → Fine-grained tokens → Generate**:

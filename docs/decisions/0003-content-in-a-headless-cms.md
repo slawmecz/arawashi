@@ -45,3 +45,11 @@ Guardrails built into the schema:
 - Content is backed up with periodic exports to a private location.
 - Previews before publishing are limited on a static host; editors publish, then check the
   live site a few minutes later.
+
+## Update (2026-11-13): content before the CMS is connected
+
+The club sent its first content before the Sanity project and the editors' test were ready.
+Until then, the content is a private JSON file in the `SiteContent` shape. The deploy workflow
+passes it to the build from a repository secret (`docs/setup.md`, step 3a). It is still never
+committed, but only the developer can change it. The CMS takes precedence as soon as it is
+configured.

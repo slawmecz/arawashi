@@ -103,7 +103,11 @@ const hasOtherContact = Boolean(
       </p>
     </noscript>
 
-    <section id="informacja-rodo" aria-labelledby="rodo-tytul" class="rounded-lg bg-ink/5 p-6">
+    <section
+      id="informacja-rodo"
+      aria-labelledby="rodo-tytul"
+      class="scroll-mt-8 rounded-lg bg-ink/5 p-6"
+    >
       <h2 id="rodo-tytul" class="text-xl font-bold">
         Informacja o&nbsp;przetwarzaniu danych osobowych
       </h2>
@@ -131,11 +135,12 @@ const hasOtherContact = Boolean(
           </a>
         </p>
       </div>
-      {/* The checkbox links here; this leads straight back to it. */}
+      {/* The first declaration links here; this leads back to the declarations (#oswiadczenia
+          in SignupForm), which are highlighted on arrival. */}
       <p class="mt-4">
         <a
-          href="#signup-privacyAcknowledged"
-          class="rounded font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red"
+          href="#oswiadczenia"
+          class="inline-block rounded py-1 font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red"
         >
           ↑ Wróć do formularza
         </a>
