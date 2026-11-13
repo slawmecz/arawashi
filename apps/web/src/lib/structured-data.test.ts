@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { sportsOrganization, toJsonLd } from './structured-data';
-import { NBSP } from './typography';
+import { NBSP, WORD_JOINER } from './typography';
 
 describe('sportsOrganization', () => {
   it('includes only the contact data that is available', () => {
@@ -34,6 +34,9 @@ describe('sportsOrganization', () => {
 describe('toJsonLd', () => {
   it('turns non-breaking spaces from typesetting into plain spaces', () => {
     expect(toJsonLd({ a: `ul.${NBSP}Testowa` })).toBe('{"a":"ul. Testowa"}');
+    expect(toJsonLd({ a: `55-${WORD_JOINER}011${NBSP}Siechnice` })).toBe(
+      '{"a":"55-011 Siechnice"}',
+    );
   });
 
   it('escapes "<" so content cannot close the script tag', () => {

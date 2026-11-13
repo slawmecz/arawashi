@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { parseContentJson } from './index';
 import { EMPTY_CONTENT } from './schema';
+import { NBSP, WORD_JOINER } from '../typography';
+
+/** The fixture address after Polish typesetting. */
+const TYPESET_ADDRESS = `ul.${NBSP}Testowa 1, 00-${WORD_JOINER}000${NBSP}Przykładowo`;
 
 /** getSiteContent() caches per module instance, so each test imports a fresh copy. */
 async function loadContent(env: Record<string, string | undefined>) {
@@ -39,7 +43,7 @@ describe('getSiteContent', () => {
 
   it('applies Polish typesetting to the displayed text', async () => {
     const content = await loadContent({ SANITY_PROJECT_ID: '', CONTENT_SOURCE: 'fixtures' });
-    expect(content.settings.address).toBe('ul. Testowa 1, 00-000 Przykładowo');
+    expect(content.settings.address).toBe(TYPESET_ADDRESS);
   });
 
   it('reads the club content from CONTENT_JSON, typeset like the other sources', async () => {
@@ -48,7 +52,7 @@ describe('getSiteContent', () => {
       CONTENT_SOURCE: '',
       CONTENT_JSON: contentJson,
     });
-    expect(content.settings.address).toBe('ul. Testowa 1, 00-000 Przykładowo');
+    expect(content.settings.address).toBe(TYPESET_ADDRESS);
   });
 
   it('keeps the fixtures for tests even when CONTENT_JSON is set', async () => {
