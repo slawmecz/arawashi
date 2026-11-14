@@ -17,8 +17,9 @@ export interface SignupEmail {
 }
 
 /**
- * Builds the e-mail sent to the club (in Polish). The parent's address is used as Reply-To,
- * so the club can answer directly from its inbox.
+ * Builds the e-mail sent to the club (in Polish), for a child signed up by a parent or an adult
+ * signing up themselves. The contact address is used as Reply-To, so the club can answer
+ * directly from its inbox.
  */
 export function buildSignupEmail(data: SignupRequest, sentAt: Date): SignupEmail {
   const when = new Intl.DateTimeFormat('pl-PL', {
@@ -27,20 +28,32 @@ export function buildSignupEmail(data: SignupRequest, sentAt: Date): SignupEmail
     timeZone: 'Europe/Warsaw',
   }).format(sentAt);
 
-  const rows: [string, string][] = [
-    ['Dziecko', data.childName],
-    ['Data urodzenia', data.childBirthDate],
-    ['Grupa', data.group],
-    ['Rodzic / opiekun', data.parentName],
-    ['Telefon', data.parentPhone],
-    ['E-mail', data.parentEmail],
-    ['Zapoznanie z informacją o danych osobowych', 'tak'],
-    ['Oświadczenie rodzica / opiekuna prawnego', 'tak'],
-    ['Wysłano', when],
-  ];
+  const adult = data.signupFor === 'self';
+  const rows: [string, string][] = adult
+    ? [
+        ['Zapis', 'osoba dorosła zapisuje się sama'],
+        ['Imię i nazwisko', data.childName],
+        ['Data urodzenia', data.childBirthDate],
+        ['Grupa', data.group],
+        ['Telefon', data.parentPhone],
+        ['E-mail', data.parentEmail],
+        ['Zapoznanie z informacją o danych osobowych', 'tak'],
+        ['Wysłano', when],
+      ]
+    : [
+        ['Dziecko', data.childName],
+        ['Data urodzenia', data.childBirthDate],
+        ['Grupa', data.group],
+        ['Rodzic / opiekun', data.parentName],
+        ['Telefon', data.parentPhone],
+        ['E-mail', data.parentEmail],
+        ['Zapoznanie z informacją o danych osobowych', 'tak'],
+        ['Oświadczenie rodzica / opiekuna prawnego', 'tak'],
+        ['Wysłano', when],
+      ];
 
   const footer =
-    'Odpowiedz na tę wiadomość, aby napisać do rodzica. ' +
+    `Odpowiedz na tę wiadomość, aby napisać do ${adult ? 'tej osoby' : 'rodzica'}. ` +
     'Usuń zgłoszenie, gdy nie będzie już potrzebne (zgodnie z polityką prywatności klubu).';
 
   const text = [
@@ -64,5 +77,6 @@ ${rows
 <p style="color:#555">${escapeHtml(footer)}</p>
 </body></html>`;
 
-  return { subject: `Nowe zgłoszenie do klubu (grupa: ${data.group})`, text, html };
+  const who = adult ? 'osoba dorosła, ' : '';
+  return { subject: `Nowe zgłoszenie do klubu (${who}grupa: ${data.group})`, text, html };
 }

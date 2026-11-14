@@ -21,6 +21,10 @@ const ABBREVIATION =
 const POSTAL_CODE = /(?<=\b\d{2}-\d{3})[ \t\r\n]+(?=\p{L})/gu;
 /** The hyphen of a postal code ("55-011"); browsers may otherwise break the line after it. */
 const POSTAL_HYPHEN = /\b(\d{2})-(?=\d{3}\b)/g;
+/** A day and the month after it ("1 września"): a date is never split across lines. */
+const MONTHS =
+  'stycznia|lutego|marca|kwietnia|maja|czerwca|lipca|sierpnia|września|października|listopada|grudnia';
+const DAY_MONTH = new RegExp(`(?<=\\b\\d{1,2})[ \\t\\r\\n]+(?=(?:${MONTHS})(?![\\p{L}]))`, 'gu');
 const BEFORE_DASH = /[ \t\r\n]+(?=[\u2013\u2014][ \t\r\n])/g;
 const LONG_DASH = /\u2014/g;
 
@@ -37,6 +41,7 @@ export function nbsp(text: string): string {
       .replace(SINGLE_LETTER, `$1${NBSP}`)
       .replace(ABBREVIATION, `$1${NBSP}`)
       .replace(POSTAL_CODE, NBSP)
+      .replace(DAY_MONTH, NBSP)
       // After POSTAL_CODE, whose lookbehind needs the plain "00-000".
       .replace(POSTAL_HYPHEN, `$1-${WORD_JOINER}`)
       .replace(BEFORE_DASH, NBSP)

@@ -116,7 +116,11 @@ export async function sendSignupEmail(data: SignupRequest, env: Env, deps: Deps)
       body: JSON.stringify({
         sender: { name: env.MAIL_FROM_NAME, email: env.MAIL_FROM },
         to: [{ email: env.MAIL_TO }],
-        replyTo: { email: data.parentEmail, name: data.parentName },
+        // The person to answer: the parent, or the adult who signed up themselves.
+        replyTo: {
+          email: data.parentEmail,
+          name: data.signupFor === 'self' ? data.childName : data.parentName,
+        },
         subject: email.subject,
         textContent: email.text,
         htmlContent: email.html,

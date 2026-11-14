@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   SIGNUP_FIELDS,
   firstErrorPerField,
+  isAdult,
   pl,
   signupFieldsSchema,
   signupRequestSchema,
@@ -11,6 +12,7 @@ import {
 
 /** Synthetic test data only – never use real people's details in tests. */
 const valid: SignupFields = {
+  signupFor: 'child',
   childName: 'Jan Testowy',
   childBirthDate: '2016-05-20',
   group: 'Dzieci 9–12 lat',
@@ -33,6 +35,7 @@ describe('signupFieldsSchema', () => {
       { ...valid, childName: '', parentName: 'Jan', parentPhone: 'abc', parentEmail: 'x' },
       { ...valid, childName: 'Jan', childBirthDate: '2999-01-01', parentPhone: '12' },
       { ...valid, privacyAcknowledged: false, guardianConfirmed: false, group: '' },
+      { signupFor: 'self', childName: '', childBirthDate: '2015-01-01', parentPhone: 'x' },
     ];
     const messages = invalid.flatMap((input) => Object.values(errorsFor(input)));
     expect(messages.length).toBeGreaterThan(8);
@@ -96,9 +99,71 @@ describe('signupFieldsSchema', () => {
     expect(errors.guardianConfirmed).toBeDefined();
   });
 
-  it('reports one message per field for an empty form', () => {
-    const errors = errorsFor({});
-    expect(Object.keys(errors).sort()).toEqual([...SIGNUP_FIELDS].sort());
+  it('asks who is signed up when the choice is missing', () => {
+    expect(errorsFor({}).signupFor).toBe('Wybierz, kogo zapisujesz.');
+  });
+
+  it('reports one message per field for an empty child form', () => {
+    const errors = errorsFor({ signupFor: 'child' });
+    expect(Object.keys(errors).sort()).toEqual(
+      SIGNUP_FIELDS.filter((field) => field !== 'signupFor').sort(),
+    );
+  });
+});
+
+/** Synthetic adult signing up themselves. */
+const adult: SignupFields = {
+  signupFor: 'self',
+  childName: 'Adam Testowy',
+  childBirthDate: '1990-03-15',
+  group: 'Dorośli',
+  parentPhone: '600 700 800',
+  parentEmail: 'adam.testowy@example.com',
+  privacyAcknowledged: true,
+};
+
+describe('adult signup (signupFor: "self")', () => {
+  it('accepts an adult without any parent or guardian fields', () => {
+    expect(signupFieldsSchema.safeParse(adult).success).toBe(true);
+  });
+
+  it('reports one message per field for an empty adult form', () => {
+    // What the form sends when nothing is filled in: empty strings and an unticked checkbox.
+    const errors = errorsFor({
+      signupFor: 'self',
+      childName: '',
+      childBirthDate: '',
+      group: '',
+      parentPhone: '',
+      parentEmail: '',
+      privacyAcknowledged: false,
+    });
+    expect(Object.keys(errors).sort()).toEqual([
+      'childBirthDate',
+      'childName',
+      'group',
+      'parentEmail',
+      'parentPhone',
+      'privacyAcknowledged',
+    ]);
+    expect(errors.childName).toBe(pl('Podaj imię i nazwisko.'));
+  });
+
+  it('sends minors to the child form', () => {
+    const minor = `${new Date().getUTCFullYear() - 10}-01-01`;
+    expect(errorsFor({ ...adult, childBirthDate: minor }).childBirthDate).toBe(
+      pl('Osobę niepełnoletnią zapisuje rodzic lub opiekun – wybierz „Dziecko”.'),
+    );
+  });
+
+  it('counts the 18th birthday as adult', () => {
+    expect(isAdult('2008-11-14', '2026-11-14')).toBe(true);
+    expect(isAdult('2008-11-15', '2026-11-14')).toBe(false);
+  });
+
+  it('accepts an adult request with the anti-bot metadata', () => {
+    const request = { ...adult, fillTimeMs: 15_000, turnstileToken: 'token', website: '' };
+    expect(signupRequestSchema.safeParse(request).success).toBe(true);
   });
 });
 
