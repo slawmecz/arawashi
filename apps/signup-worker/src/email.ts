@@ -29,6 +29,9 @@ export function buildSignupEmail(data: SignupRequest, sentAt: Date): SignupEmail
   }).format(sentAt);
 
   const adult = data.signupFor === 'self';
+  // The optional note keeps its line breaks; it is left out when empty.
+  const note = data.notes?.replace(/\r\n?/g, '\n').trim();
+  const noteRow: [string, string][] = note ? [['Dodatkowe informacje', note]] : [];
   const rows: [string, string][] = adult
     ? [
         ['Zapis', 'osoba dorosła zapisuje się sama'],
@@ -37,6 +40,7 @@ export function buildSignupEmail(data: SignupRequest, sentAt: Date): SignupEmail
         ['Grupa', data.group],
         ['Telefon', data.parentPhone],
         ['E-mail', data.parentEmail],
+        ...noteRow,
         ['Zapoznanie z informacją o danych osobowych', 'tak'],
         ['Wysłano', when],
       ]
@@ -47,6 +51,7 @@ export function buildSignupEmail(data: SignupRequest, sentAt: Date): SignupEmail
         ['Rodzic / opiekun', data.parentName],
         ['Telefon', data.parentPhone],
         ['E-mail', data.parentEmail],
+        ...noteRow,
         ['Zapoznanie z informacją o danych osobowych', 'tak'],
         ['Oświadczenie rodzica / opiekuna prawnego', 'tak'],
         ['Wysłano', when],
@@ -70,7 +75,7 @@ export function buildSignupEmail(data: SignupRequest, sentAt: Date): SignupEmail
 ${rows
   .map(
     ([label, value]) =>
-      `<tr><th align="left" style="border-bottom:1px solid #ddd">${escapeHtml(label)}</th><td style="border-bottom:1px solid #ddd">${escapeHtml(value)}</td></tr>`,
+      `<tr><th align="left" style="border-bottom:1px solid #ddd">${escapeHtml(label)}</th><td style="border-bottom:1px solid #ddd">${escapeHtml(value).replaceAll('\n', '<br>')}</td></tr>`,
   )
   .join('\n')}
 </table>

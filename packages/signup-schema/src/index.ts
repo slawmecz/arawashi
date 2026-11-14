@@ -8,9 +8,10 @@
  * Two variants share one request shape (field `signupFor`): a parent signs up a child
  * ("child"), or an adult signs up themselves ("self", 18+ only).
  *
- * Only the fields from the club's brief are collected. There is no free-text field
- * (names, phone and e-mail have strict formats; the group is a short single line), so health
- * or other special-category data (GDPR art. 9) is unlikely to arrive by accident.
+ * Only the fields from the club's brief are collected, plus one optional free-text note
+ * ("Dodatkowe informacje"). Names, phone and e-mail have strict formats and the group is a short
+ * single line; the note is limited to 500 characters and the form asks not to write about
+ * health there, so special-category data (GDPR art. 9) is unlikely to arrive by accident.
  */
 import { z } from 'zod';
 
@@ -32,6 +33,12 @@ const PHONE_PATTERN = /^\(?\+?[\d ()-]+$/;
 
 /** No control characters (line breaks, tabs…): values end up in e-mail subjects and bodies. */
 const SINGLE_LINE = /^[^\p{Cc}]*$/u;
+
+/** Like SINGLE_LINE, but line breaks are allowed (the note is shown only in the e-mail body). */
+const MULTI_LINE = /^(?:[^\p{Cc}]|\r?\n)*$/u;
+
+/** Longest accepted "Dodatkowe informacje" note, in characters. */
+export const NOTES_MAX_LENGTH = 500;
 
 /**
  * Polish typesetting for the messages: a non-breaking space after one-letter words
@@ -106,6 +113,14 @@ const privacyAcknowledged = z.literal(true, {
   error: pl('Potwierdź zapoznanie się z informacją o przetwarzaniu danych.'),
 });
 
+/** Optional free text ("Dodatkowe informacje"); an empty note is the same as none. */
+const notes = z
+  .string()
+  .trim()
+  .max(NOTES_MAX_LENGTH, { error: `Maksymalnie ${NOTES_MAX_LENGTH} znaków.` })
+  .regex(MULTI_LINE, { error: pl('Usuń znaki specjalne z dodatkowych informacji.') })
+  .optional();
+
 /** A parent or guardian signs up a child (the form from the club's brief). */
 const childSignupSchema = z.object({
   signupFor: z.literal('child'),
@@ -115,6 +130,7 @@ const childSignupSchema = z.object({
   parentName: personName('Podaj imię i nazwisko rodzica lub opiekuna.'),
   parentPhone: phone,
   parentEmail: email,
+  notes,
   privacyAcknowledged,
   guardianConfirmed: z.literal(true, {
     error: 'Potwierdź, że jesteś rodzicem lub opiekunem prawnym dziecka.',
@@ -135,6 +151,7 @@ const adultSignupSchema = z.object({
   group,
   parentPhone: phone,
   parentEmail: email,
+  notes,
   privacyAcknowledged,
 });
 
@@ -157,6 +174,7 @@ export const SIGNUP_FIELDS = [
   'parentName',
   'parentPhone',
   'parentEmail',
+  'notes',
   'privacyAcknowledged',
   'guardianConfirmed',
 ] as const;
