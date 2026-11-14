@@ -1,7 +1,7 @@
 name: Deploy to GitHub Pages
 
-# Runs on every push to main, when the CMS publishes content (the Sanity webhook calls the
-# workflow_dispatch API) and nightly as a safety net (e.g. if the webhook token expired).
+# Runs on every push to main, when the CMS content changes (started by content-check.yml, or by
+# an optional Sanity webhook calling the workflow_dispatch API) and nightly as a safety net.
 # Setup: docs/setup.md. Requires GitHub Pages with "Source: GitHub Actions".
 on:
   push:

@@ -2,17 +2,28 @@
  * Document types edited by the club. Field names must match the GROQ query in
  * apps/web/src/lib/content/sanity.ts.
  */
+import { ClockIcon } from '@sanity/icons/Clock';
+import { DocumentPdfIcon } from '@sanity/icons/DocumentPdf';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+import { EnvelopeIcon } from '@sanity/icons/Envelope';
+import { HelpCircleIcon } from '@sanity/icons/HelpCircle';
+import { InfoOutlineIcon } from '@sanity/icons/InfoOutline';
+import { StarIcon } from '@sanity/icons/Star';
+import { SunIcon } from '@sanity/icons/Sun';
+import { UserIcon } from '@sanity/icons/User';
+import { UsersIcon } from '@sanity/icons/Users';
 import { defineField, defineType } from 'sanity';
+import { AutoSlugInput } from '../components/AutoSlugInput';
 import { consentImage, orderField, richText } from './shared';
-import { slugify } from './slugify';
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const siteSettings = defineType({
   name: 'siteSettings',
-  title: 'Dane klubu i kontakt',
+  title: 'Kontakt i dane klubu',
   type: 'document',
+  icon: EnvelopeIcon,
   fields: [
     defineField({ name: 'phone', title: 'Telefon', type: 'string' }),
     defineField({
@@ -32,6 +43,9 @@ export const siteSettings = defineType({
         'Zaznacz tylko wtedy, gdy klub jest w wykazie OPP – pojawi się strona „Przekaż 1,5% podatku” (wymaga numeru KRS).',
       type: 'boolean',
       initialValue: false,
+      // Hidden from editors: the 1.5% page shows the club's own KRS, so it may only be switched
+      // on after the developer has checked the club in the official OPP list.
+      hidden: true,
     }),
     defineField({
       name: 'heroImage',
@@ -48,6 +62,7 @@ export const siteSettings = defineType({
           description:
             'Np. „Unsplash, autor: …, licencja Unsplash” albo „wygenerowane w … zgodnie z regulaminem narzędzia”.',
           type: 'string',
+          hidden: ({ parent }) => !(parent as { asset?: unknown } | undefined)?.asset,
           validation: (rule) =>
             rule.max(300).custom((value, context) => {
               const hasImage = Boolean((context.parent as { asset?: unknown } | undefined)?.asset);
@@ -61,7 +76,7 @@ export const siteSettings = defineType({
           title:
             'Potwierdzam: mamy prawo użyć tego zdjęcia na stronie i nie widać na nim rozpoznawalnych dzieci',
           type: 'boolean',
-          initialValue: false,
+          hidden: ({ parent }) => !(parent as { asset?: unknown } | undefined)?.asset,
           validation: (rule) =>
             rule.custom((value, context) => {
               const hasImage = Boolean((context.parent as { asset?: unknown } | undefined)?.asset);
@@ -106,13 +121,14 @@ export const siteSettings = defineType({
       ],
     }),
   ],
-  preview: { prepare: () => ({ title: 'Dane klubu i kontakt' }) },
+  preview: { prepare: () => ({ title: 'Kontakt i dane klubu' }) },
 });
 
 export const aboutPage = defineType({
   name: 'aboutPage',
   title: 'Poznaj Arawashi (o klubie)',
   type: 'document',
+  icon: InfoOutlineIcon,
   fields: [richText('body', 'Treść')],
   preview: { prepare: () => ({ title: 'Poznaj Arawashi' }) },
 });
@@ -121,6 +137,7 @@ export const trainingGroup = defineType({
   name: 'trainingGroup',
   title: 'Grupa treningowa',
   type: 'document',
+  icon: UsersIcon,
   fields: [
     defineField({
       name: 'name',
@@ -139,6 +156,7 @@ export const scheduleSlot = defineType({
   name: 'scheduleSlot',
   title: 'Zajęcia w grafiku',
   type: 'document',
+  icon: ClockIcon,
   fields: [
     defineField({
       name: 'group',
@@ -192,6 +210,7 @@ export const newsPost = defineType({
   name: 'newsPost',
   title: 'Aktualność',
   type: 'document',
+  icon: DocumentTextIcon,
   fields: [
     defineField({
       name: 'title',
@@ -202,18 +221,17 @@ export const newsPost = defineType({
     defineField({
       name: 'slug',
       title: 'Adres strony',
-      description: 'Kliknij „Generuj”, aby utworzyć adres z tytułu.',
+      description:
+        'Tworzy się sam z tytułu. Po pierwszej publikacji już się nie zmienia, żeby udostępnione linki działały.',
       type: 'slug',
-      options: { source: 'title', maxLength: 80, slugify: slugify },
+      components: { input: AutoSlugInput },
       // Must match the website's slug rule, otherwise the post would be skipped by the build.
       validation: (r) =>
-        r
-          .required()
-          .custom((value) =>
-            SLUG.test((value as { current?: string } | undefined)?.current ?? '')
-              ? true
-              : 'Tylko małe litery bez polskich znaków, cyfry i myślniki. Kliknij „Generuj”.',
-          ),
+        r.custom((value) =>
+          SLUG.test((value as { current?: string } | undefined)?.current ?? '')
+            ? true
+            : 'Wpisz tytuł – adres strony utworzy się sam.',
+        ),
     }),
     defineField({
       name: 'publishedAt',
@@ -236,6 +254,7 @@ export const camp = defineType({
   name: 'camp',
   title: 'Obóz / półkolonie',
   type: 'document',
+  icon: SunIcon,
   fields: [
     defineField({ name: 'title', title: 'Nazwa', type: 'string', validation: (r) => r.required() }),
     defineField({
@@ -276,14 +295,17 @@ export const achievement = defineType({
   name: 'achievement',
   title: 'Osiągnięcie',
   type: 'document',
+  icon: StarIcon,
   fields: [
-    defineField({ name: 'title', title: 'Tytuł', type: 'string', validation: (r) => r.required() }),
+    defineField({
+      name: 'title',
+      title: 'Tytuł',
+      description: 'Imiona i nazwiska dzieci podawaj tylko za zgodą rodziców.',
+      type: 'string',
+      validation: (r) => r.required(),
+    }),
     defineField({ name: 'date', title: 'Data', type: 'date', validation: (r) => r.required() }),
-    richText(
-      'description',
-      'Opis',
-      'Imiona i nazwiska zawodników podawaj tylko za zgodą rodziców (zalecane: imię i pierwsza litera nazwiska).',
-    ),
+    richText('description', 'Opis (opcjonalnie)'),
   ],
   preview: { select: { title: 'title', subtitle: 'date' } },
 });
@@ -292,6 +314,7 @@ export const coach = defineType({
   name: 'coach',
   title: 'Trener',
   type: 'document',
+  icon: UserIcon,
   fields: [
     defineField({
       name: 'name',
@@ -317,6 +340,7 @@ export const clubDocument = defineType({
   name: 'clubDocument',
   title: 'Dokument do pobrania',
   type: 'document',
+  icon: DocumentPdfIcon,
   fields: [
     defineField({ name: 'title', title: 'Nazwa', type: 'string', validation: (r) => r.required() }),
     defineField({
@@ -351,6 +375,7 @@ export const faqItem = defineType({
   name: 'faqItem',
   title: 'Pytanie i odpowiedź',
   type: 'document',
+  icon: HelpCircleIcon,
   fields: [
     defineField({
       name: 'question',

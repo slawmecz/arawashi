@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@sanity/icons": "^5.2.3",
     "@sanity/locale-pl-pl": "^1.2.36",
     "@sanity/vision": "^6.22.0",
     "react": "^19.3.1",
