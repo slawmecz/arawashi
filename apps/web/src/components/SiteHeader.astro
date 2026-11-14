@@ -26,15 +26,16 @@ const mobileLinkClass = `block rounded px-3 py-2.5 font-medium text-white/85 hov
 <header class="bg-ink text-white">
   <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
     <a href="/" class={`flex items-center gap-3 rounded ${focusRing}`}>
-      {/* 60 px on phones from 360 px wide and tablets, 96 px on laptops. The narrowest phones
-          (320 px) keep 48 px: a larger logo would push the Menu button onto a second row. */}
+      {/* 72 px on phones from 360 px wide and tablets (22 px stay free next to Menu at 360 px),
+          96 px on laptops. The narrowest phones (320 px) keep 48 px: a larger logo would push
+          the Menu button onto a second row. */}
       <Image
         src={site.logo}
         alt=""
         width={192}
         height={192}
         loading="eager"
-        class="size-12 rounded-full min-[22.5rem]:size-15 lg:size-24"
+        class="size-12 rounded-full min-[22.5rem]:size-18 lg:size-24"
       />
       <span class="text-lg font-extrabold tracking-wider uppercase sm:text-xl sm:tracking-widest lg:text-2xl">
         {site.name}
