@@ -32,6 +32,13 @@ describe('nbsp', () => {
     expect(nbsp('ul.\tSzkolna')).toBe(n('ul.~Szkolna'));
   });
 
+  it('keeps a day with its month, but not a year with the next word', () => {
+    expect(nbsp('Startujemy 1 września')).toBe(n('Startujemy 1~września'));
+    expect(nbsp('od 17 stycznia 2027')).toBe(n('od 17~stycznia 2027'));
+    expect(nbsp('w 2026 maja nie było')).toBe(n('w~2026 maja nie było'));
+    expect(nbsp('mamy 12 grup')).toBe('mamy 12 grup');
+  });
+
   it('never splits a postal code at its hyphen, and leaves other numbers alone', () => {
     expect(nbsp('00-950 Przykładowo')).toBe(n('00-^950~Przykładowo'));
     // Synthetic numbers only: a phone number, a register number and a date.

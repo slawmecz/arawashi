@@ -9,6 +9,7 @@ const ORIGIN = 'https://arawashi.eu';
 
 /** Synthetic test data only. */
 const validBody: SignupRequest = {
+  signupFor: 'child',
   childName: 'Jan Testowy',
   childBirthDate: '2016-05-20',
   group: 'Dzieci 9–12 lat',
@@ -133,6 +134,53 @@ describe('signup Worker', () => {
       name: 'Anna Testowa',
     });
     expect(email?.body.textContent).toContain('Jan Testowy');
+  });
+
+  it('e-mails an adult who signs up themselves, replying to that adult', async () => {
+    const adultBody: SignupRequest = {
+      signupFor: 'self',
+      childName: 'Adam Testowy',
+      childBirthDate: '1990-03-15',
+      group: 'Dorośli',
+      parentPhone: '600 700 800',
+      parentEmail: 'adam.testowy@example.com',
+      privacyAcknowledged: true,
+      fillTimeMs: 60_000,
+      turnstileToken: 'valid-token',
+      website: '',
+    };
+    const { response, fetchFn } = await run(post(adultBody));
+    expect(response.status).toBe(200);
+    const email = brevoCall(fetchFn);
+    expect(email?.body.replyTo).toEqual({
+      email: 'adam.testowy@example.com',
+      name: 'Adam Testowy',
+    });
+    expect(email?.body.subject).toContain('osoba dorosła');
+    expect(email?.body.textContent).toContain('osoba dorosła zapisuje się sama');
+    expect(email?.body.textContent).not.toContain('Rodzic');
+  });
+
+  it('rejects an adult signup with the birth date of a minor', async () => {
+    const minor = `${new Date(NOW).getUTCFullYear() - 10}-01-01`;
+    const { response, body } = await run(
+      post({
+        signupFor: 'self',
+        childName: 'Adam Testowy',
+        childBirthDate: minor,
+        group: 'Dorośli',
+        parentPhone: '600 700 800',
+        parentEmail: 'adam.testowy@example.com',
+        privacyAcknowledged: true,
+        fillTimeMs: 60_000,
+        turnstileToken: 'valid-token',
+        website: '',
+      }),
+    );
+    expect(response.status).toBe(400);
+    expect(
+      (body as { fieldErrors?: Record<string, string> }).fieldErrors?.['childBirthDate'],
+    ).toMatch(/niepełnoletnią/);
   });
 
   it('pretends success but sends nothing when the honeypot is filled', async () => {

@@ -114,7 +114,16 @@ function Checkbox({ name, error, children }: CheckboxProps) {
   );
 }
 
+/** Who is being signed up: a child (by a parent or guardian) or the adult filling in the form. */
+type SignupFor = 'child' | 'self';
+const SIGNUP_FOR_OPTIONS: readonly (readonly [SignupFor, string])[] = [
+  ['child', 'Dziecko'],
+  ['self', 'Siebie (osoba dorosła)'],
+];
+
 export default function SignupForm({ groups, phone, email }: Props) {
+  const [signupFor, setSignupFor] = useState<SignupFor>('child');
+  const adult = signupFor === 'self';
   const [errors, setErrors] = useState<SignupFieldErrors>({});
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
@@ -180,16 +189,24 @@ export default function SignupForm({ groups, phone, email }: Props) {
     const data = new FormData(event.currentTarget);
     const text = (name: string) => String(data.get(name) ?? '');
 
-    const result = signupFieldsSchema.safeParse({
+    const shared = {
       childName: text('childName'),
       childBirthDate: text('childBirthDate'),
       group: text('group'),
-      parentName: text('parentName'),
       parentPhone: text('parentPhone'),
       parentEmail: text('parentEmail'),
       privacyAcknowledged: data.get('privacyAcknowledged') === 'on',
-      guardianConfirmed: data.get('guardianConfirmed') === 'on',
-    });
+    };
+    const result = signupFieldsSchema.safeParse(
+      adult
+        ? { signupFor: 'self', ...shared }
+        : {
+            signupFor: 'child',
+            ...shared,
+            parentName: text('parentName'),
+            guardianConfirmed: data.get('guardianConfirmed') === 'on',
+          },
+    );
     if (!result.success) {
       setStatus('idle');
       showFieldErrors(firstErrorPerField(result.error));
@@ -277,16 +294,59 @@ export default function SignupForm({ groups, phone, email }: Props) {
       )}
       <p className="text-sm text-ink/80">Wszystkie pola są wymagane.</p>
 
+      <fieldset>
+        <legend className="mb-2 text-xl font-bold">Kogo zapisujesz?</legend>
+        <div className="flex flex-wrap gap-x-8 gap-y-3">
+          {SIGNUP_FOR_OPTIONS.map(([value, label]) => (
+            <label key={value} className="flex items-center gap-3 text-lg">
+              <input
+                type="radio"
+                name="signupFor"
+                value={value}
+                checked={signupFor === value}
+                onChange={() => {
+                  setSignupFor(value);
+                  setErrors({});
+                }}
+                className="size-5 accent-brand-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-red"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       <fieldset className="space-y-4">
-        <legend className="mb-2 text-xl font-bold">Dane dziecka</legend>
-        <Field name="childName" label={'Imię i\u00a0nazwisko dziecka'} error={errors.childName}>
+        <legend className="mb-2 text-xl font-bold">{adult ? 'Twoje dane' : 'Dane dziecka'}</legend>
+        <Field
+          name="childName"
+          label={adult ? 'Imię i\u00a0nazwisko' : 'Imię i\u00a0nazwisko dziecka'}
+          error={errors.childName}
+        >
           {(props) => (
-            <input {...props} type="text" autoComplete="off" required className={inputClass} />
+            <input
+              {...props}
+              type="text"
+              autoComplete={adult ? 'name' : 'off'}
+              required
+              className={inputClass}
+            />
           )}
         </Field>
-        <Field name="childBirthDate" label="Data urodzenia dziecka" error={errors.childBirthDate}>
+        <Field
+          name="childBirthDate"
+          label={adult ? 'Data urodzenia' : 'Data urodzenia dziecka'}
+          error={errors.childBirthDate}
+        >
           {(props) => (
-            <input {...props} type="date" max={todayIsoDate()} required className={inputClass} />
+            <input
+              {...props}
+              type="date"
+              max={todayIsoDate()}
+              autoComplete={adult ? 'bday' : 'off'}
+              required
+              className={inputClass}
+            />
           )}
         </Field>
         <Field name="group" label="Grupa treningowa" error={errors.group}>
@@ -310,12 +370,16 @@ export default function SignupForm({ groups, phone, email }: Props) {
       </fieldset>
 
       <fieldset className="space-y-4">
-        <legend className="mb-2 text-xl font-bold">Dane rodzica lub opiekuna</legend>
-        <Field name="parentName" label={'Imię i\u00a0nazwisko'} error={errors.parentName}>
-          {(props) => (
-            <input {...props} type="text" autoComplete="name" required className={inputClass} />
-          )}
-        </Field>
+        <legend className="mb-2 text-xl font-bold">
+          {adult ? 'Kontakt' : 'Dane rodzica lub opiekuna'}
+        </legend>
+        {!adult && (
+          <Field name="parentName" label={'Imię i\u00a0nazwisko'} error={errors.parentName}>
+            {(props) => (
+              <input {...props} type="text" autoComplete="name" required className={inputClass} />
+            )}
+          </Field>
+        )}
         <Field name="parentPhone" label="Telefon" error={errors.parentPhone}>
           {(props) => (
             <input
@@ -351,9 +415,11 @@ export default function SignupForm({ groups, phone, email }: Props) {
           </a>
           .
         </Checkbox>
-        <Checkbox name="guardianConfirmed" error={errors.guardianConfirmed}>
-          Jestem rodzicem lub opiekunem prawnym dziecka.
-        </Checkbox>
+        {!adult && (
+          <Checkbox name="guardianConfirmed" error={errors.guardianConfirmed}>
+            Jestem rodzicem lub opiekunem prawnym dziecka.
+          </Checkbox>
+        )}
       </div>
 
       {/* Honeypot: hidden from people and assistive technology; bots tend to fill it in. */}

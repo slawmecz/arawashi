@@ -51,6 +51,7 @@ test('sends a valid form and shows the confirmation', async ({ page }) => {
 
   await expect(page.getByRole('status')).toContainText('Dziękujemy! Zgłoszenie zostało wysłane.');
   expect(sent).toMatchObject({
+    signupFor: 'child',
     childName: 'Jan Testowy',
     group: 'Grupa testowa A',
     parentEmail: 'anna.testowa@example.com',
@@ -59,6 +60,42 @@ test('sends a valid form and shows the confirmation', async ({ page }) => {
     website: '',
   });
   expect(typeof sent?.['fillTimeMs']).toBe('number');
+});
+
+test('an adult can sign up themselves, without the parent fields', async ({ page }) => {
+  let sent: Record<string, unknown> | undefined;
+  await page.route(ENDPOINT, async (route) => {
+    sent = route.request().postDataJSON() as Record<string, unknown>;
+    await route.fulfill({ json: { ok: true } });
+  });
+
+  await page.getByLabel('Siebie (osoba dorosła)').check();
+  await expect(page.getByText('Dane rodzica lub opiekuna')).toHaveCount(0);
+  await expect(page.getByLabel(/Jestem rodzicem lub opiekunem/)).toHaveCount(0);
+
+  await page.getByLabel('Imię i nazwisko', { exact: true }).fill('Adam Testowy');
+  await page.getByLabel('Data urodzenia', { exact: true }).fill('1990-03-15');
+  await page.getByLabel('Grupa treningowa').selectOption('Grupa testowa B');
+  await page.getByLabel('Telefon').fill('600 700 800');
+  await page.getByLabel('E-mail').fill('adam.testowy@example.com');
+  await page.getByLabel(/Zapoznałem\/am się/).check();
+  await page.getByRole('button', { name: 'Wyślij zgłoszenie' }).click();
+
+  await expect(page.getByRole('status')).toContainText('Dziękujemy! Zgłoszenie zostało wysłane.');
+  expect(sent).toMatchObject({
+    signupFor: 'self',
+    childName: 'Adam Testowy',
+    parentEmail: 'adam.testowy@example.com',
+  });
+  expect(sent).not.toHaveProperty('parentName');
+  expect(sent).not.toHaveProperty('guardianConfirmed');
+});
+
+test('the adult option sends minors back to the child form', async ({ page }) => {
+  await page.getByLabel('Siebie (osoba dorosła)').check();
+  await page.getByLabel('Data urodzenia', { exact: true }).fill('2016-05-20');
+  await page.getByRole('button', { name: 'Wyślij zgłoszenie' }).click();
+  await expect(page.getByText(/Osobę niepełnoletnią zapisuje rodzic lub opiekun/)).toBeVisible();
 });
 
 test('shows field errors returned by the server', async ({ page }) => {
