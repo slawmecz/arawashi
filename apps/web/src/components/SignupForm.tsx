@@ -7,6 +7,7 @@
  * invalid field, the success message or the error alert.
  */
 import {
+  NOTES_MAX_LENGTH,
   SIGNUP_FIELDS,
   firstErrorPerField,
   signupFieldsSchema,
@@ -49,6 +50,8 @@ const inputClass =
 interface FieldProps {
   name: SignupField;
   label: string;
+  /** Optional help text under the label, read by screen readers with the control. */
+  hint?: string;
   error: string | undefined;
   children: (props: {
     id: string;
@@ -59,19 +62,26 @@ interface FieldProps {
 }
 
 /** Label + control + error message, wired together for screen readers. */
-function Field({ name, label, error, children }: FieldProps) {
+function Field({ name, label, hint, error, children }: FieldProps) {
   const id = `signup-${name}`;
+  const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
+  const describedBy = [hint && hintId, error && errorId].filter(Boolean).join(' ');
   return (
     <div>
       <label htmlFor={id} className="block font-semibold">
         {label}
       </label>
+      {hint && (
+        <p id={hintId} className="mt-1 text-sm text-ink/75">
+          {hint}
+        </p>
+      )}
       {children({
         id,
         name,
         'aria-invalid': Boolean(error),
-        'aria-describedby': error ? errorId : undefined,
+        'aria-describedby': describedBy || undefined,
       })}
       {error && (
         <p id={errorId} className="mt-1 text-sm font-medium text-brand-red">
@@ -195,6 +205,7 @@ export default function SignupForm({ groups, phone, email }: Props) {
       group: text('group'),
       parentPhone: text('parentPhone'),
       parentEmail: text('parentEmail'),
+      notes: text('notes'),
       privacyAcknowledged: data.get('privacyAcknowledged') === 'on',
     };
     const result = signupFieldsSchema.safeParse(
@@ -398,6 +409,17 @@ export default function SignupForm({ groups, phone, email }: Props) {
           )}
         </Field>
       </fieldset>
+
+      <Field
+        name="notes"
+        label="Dodatkowe informacje (nieobowiązkowe)"
+        hint={`Np. pytanie o\u00a0grupę albo pierwszy trening. Nie wpisuj tu informacji o\u00a0zdrowiu\u00a0– porozmawiamy o\u00a0tym osobiście. Do ${NOTES_MAX_LENGTH} znaków.`}
+        error={errors.notes}
+      >
+        {(props) => (
+          <textarea {...props} rows={4} maxLength={NOTES_MAX_LENGTH} className={inputClass} />
+        )}
+      </Field>
 
       {/* Target of "Wróć do formularza" in the privacy section: lands with the fields above it in
           view and a ring that shows where the reader is, even when the page cannot scroll. */}

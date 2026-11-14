@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  NOTES_MAX_LENGTH,
   SIGNUP_FIELDS,
   firstErrorPerField,
   isAdult,
@@ -103,10 +104,11 @@ describe('signupFieldsSchema', () => {
     expect(errorsFor({}).signupFor).toBe('Wybierz, kogo zapisujesz.');
   });
 
-  it('reports one message per field for an empty child form', () => {
+  it('reports one message per required field for an empty child form', () => {
     const errors = errorsFor({ signupFor: 'child' });
+    // "notes" is optional, so an empty form has no message for it.
     expect(Object.keys(errors).sort()).toEqual(
-      SIGNUP_FIELDS.filter((field) => field !== 'signupFor').sort(),
+      SIGNUP_FIELDS.filter((field) => field !== 'signupFor' && field !== 'notes').sort(),
     );
   });
 });
@@ -228,5 +230,46 @@ describe('boundaries', () => {
   it('rejects a negative fill time', () => {
     const request = { ...valid, fillTimeMs: -1, turnstileToken: '', website: '' };
     expect(signupRequestSchema.safeParse(request).success).toBe(false);
+  });
+});
+
+describe('notes ("Dodatkowe informacje")', () => {
+  it('is optional: no note, an empty note and spaces only are all fine', () => {
+    expect(signupFieldsSchema.safeParse(valid).success).toBe(true);
+    expect(signupFieldsSchema.safeParse({ ...valid, notes: '' }).success).toBe(true);
+    expect(signupFieldsSchema.parse({ ...valid, notes: '   ' }).notes).toBe('');
+  });
+
+  it('keeps line breaks and trims the ends', () => {
+    const note = ['  Pytanie o grupę.', 'Dziękuję!  '].join(String.fromCharCode(13, 10));
+    const parsed = signupFieldsSchema.parse({ ...valid, notes: note });
+    expect(parsed.notes).toBe(note.trim());
+    expect(parsed.notes).toContain(String.fromCharCode(13, 10));
+  });
+
+  it(`accepts ${NOTES_MAX_LENGTH} characters but not more`, () => {
+    expect(
+      signupFieldsSchema.safeParse({ ...valid, notes: 'a'.repeat(NOTES_MAX_LENGTH) }).success,
+    ).toBe(true);
+    expect(errorsFor({ ...valid, notes: 'a'.repeat(NOTES_MAX_LENGTH + 1) }).notes).toBe(
+      `Maksymalnie ${NOTES_MAX_LENGTH} znaków.`,
+    );
+  });
+
+  it('rejects control characters other than line breaks', () => {
+    expect(errorsFor({ ...valid, notes: `a${String.fromCharCode(0)}b` }).notes).toBe(
+      pl('Usuń znaki specjalne z dodatkowych informacji.'),
+    );
+    expect(errorsFor({ ...valid, notes: `a${String.fromCharCode(7)}b` }).notes).toBeDefined();
+  });
+
+  it('works for an adult signing up themselves too', () => {
+    expect(signupFieldsSchema.parse({ ...adult, notes: 'Trenowałem kiedyś judo.' }).notes).toBe(
+      'Trenowałem kiedyś judo.',
+    );
+  });
+
+  it('is listed among the form fields, after the contact data', () => {
+    expect(SIGNUP_FIELDS.indexOf('notes')).toBe(SIGNUP_FIELDS.indexOf('parentEmail') + 1);
   });
 });

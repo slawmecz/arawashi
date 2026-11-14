@@ -47,6 +47,10 @@ test('sends a valid form and shows the confirmation', async ({ page }) => {
   });
 
   await fillValidForm(page);
+  const notes = page.getByLabel('Dodatkowe informacje (nieobowiązkowe)');
+  // The hint (no health data, length limit) is read together with the field.
+  await expect(notes).toHaveAccessibleDescription(/Nie wpisuj tu informacji o.zdrowiu/);
+  await notes.fill('Pytanie o grupę.\nDziękuję!');
   await page.getByRole('button', { name: 'Wyślij zgłoszenie' }).click();
 
   await expect(page.getByRole('status')).toContainText('Dziękujemy! Zgłoszenie zostało wysłane.');
@@ -55,6 +59,7 @@ test('sends a valid form and shows the confirmation', async ({ page }) => {
     childName: 'Jan Testowy',
     group: 'Grupa testowa A',
     parentEmail: 'anna.testowa@example.com',
+    notes: 'Pytanie o grupę.\nDziękuję!',
     privacyAcknowledged: true,
     guardianConfirmed: true,
     website: '',

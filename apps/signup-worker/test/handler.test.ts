@@ -264,6 +264,21 @@ describe('signup e-mail', () => {
     expect(buildSignupEmail(validBody, new Date(NOW)).text).toContain('7 listopada 2026');
   });
 
+  it('adds the optional note with its line breaks, escaped', () => {
+    const notes = ['Pytanie o <b>grupę</b>', 'Druga linia'].join(String.fromCharCode(13, 10));
+    const email = buildSignupEmail({ ...validBody, notes }, new Date(NOW));
+    expect(email.text).toContain('Dodatkowe informacje: Pytanie o <b>grupę</b>\nDruga linia');
+    expect(email.html).toContain('Pytanie o &lt;b&gt;grupę&lt;/b&gt;<br>Druga linia');
+    expect(email.html).not.toContain('<b>');
+  });
+
+  it('leaves the note out when it is empty', () => {
+    for (const notes of [undefined, '', '   ']) {
+      const email = buildSignupEmail({ ...validBody, notes }, new Date(NOW));
+      expect(email.text).not.toContain('Dodatkowe informacje');
+    }
+  });
+
   it('escapes all HTML special characters', () => {
     expect(escapeHtml(`<a href="x">'&'</a>`)).toBe(
       '&lt;a href=&quot;x&quot;&gt;&#39;&amp;&#39;&lt;/a&gt;',
