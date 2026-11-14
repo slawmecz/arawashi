@@ -66,14 +66,23 @@ const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline
       aria-hidden="true"
       class="absolute inset-0 -z-20 max-lg:bg-ink/70 lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)]"
     />
-    {/* Decorative calligraphy: 空手道 (karate-dō, "the way of the empty hand"). */}
-    <p
+    {/* Decorative calligraphy: 空手道 (karate-dō, "the way of the empty hand"), inset from the
+        edge. Its reading in Latin letters shows from xl only, where it fits in the margin left
+        of the hero text instead of running behind it. */}
+    <div
       aria-hidden="true"
-      lang="ja"
-      class="pointer-events-none absolute top-1/2 -left-4 -z-10 -translate-y-1/2 text-[9rem] leading-none font-bold whitespace-nowrap text-white/5 select-none [writing-mode:vertical-rl] forced-colors:hidden md:text-[12rem]"
+      class="pointer-events-none absolute top-1/2 left-4 -z-10 flex -translate-y-1/2 items-center gap-3 select-none forced-colors:hidden md:left-6"
     >
-      空手道
-    </p>
+      <p class="text-lg font-semibold tracking-[0.4em] whitespace-nowrap text-white/50 [writing-mode:vertical-rl] max-xl:hidden">
+        KARATE-DŌ
+      </p>
+      <p
+        lang="ja"
+        class="text-[9rem] leading-none font-bold whitespace-nowrap text-white/5 [writing-mode:vertical-rl] md:text-[12rem]"
+      >
+        空手道
+      </p>
+    </div>
 
     <div class="mx-auto w-full max-w-6xl px-4 py-24 md:py-36">
       {/* Flex with a gap, so source formatting cannot change the spacing: one line with "·"

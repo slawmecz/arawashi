@@ -14,6 +14,8 @@ function signupOrigin() {
 }
 
 const TURNSTILE = 'https://challenges.cloudflare.com';
+/** Google Maps embed on the contact page; it loads only after a click (MapOnClick). */
+const GOOGLE_MAPS = 'https://www.google.com';
 
 /**
  * SITE_STAGE=test builds the public test copy at test.arawashi.eu: every page is noindex,
@@ -33,7 +35,7 @@ export default defineConfig({
         "default-src 'self'",
         "img-src 'self' data:",
         `connect-src 'self' ${[TURNSTILE, signupOrigin()].filter(Boolean).join(' ')}`,
-        `frame-src ${TURNSTILE}`,
+        `frame-src ${TURNSTILE} ${GOOGLE_MAPS}`,
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",

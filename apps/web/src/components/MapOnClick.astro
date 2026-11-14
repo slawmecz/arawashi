@@ -1,0 +1,48 @@
+---
+/**
+ * A Google map that loads only after a click. Until then nothing is requested from Google
+ * (no cookies, no IP address sent), so the site still needs no cookie banner; the privacy
+ * policy explains what happens after the click. No API key is needed for this embed.
+ */
+import { plainText } from '../lib/typography';
+
+interface Props {
+  /** Place to show: name and address (typeset text is fine). */
+  query: string;
+  /** Accessible name of the map, e.g. "Mapa: Hala Sportowa". */
+  label: string;
+}
+
+const { query, label } = Astro.props;
+const src = `https://www.google.com/maps?q=${encodeURIComponent(plainText(query))}&output=embed`;
+---
+
+<div data-map class="mt-4">
+  <button
+    type="button"
+    data-map-src={src}
+    data-map-title={plainText(label)}
+    class="rounded-md border-2 border-ink/30 px-4 py-2 text-base font-semibold hover:bg-ink/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red"
+  >
+    Pokaż mapę
+  </button>
+  <p class="mt-2 text-sm text-ink/70">
+    Mapa wczyta się z&nbsp;Google Maps. Google otrzyma wtedy adres IP i&nbsp;może zapisać pliki
+    cookies.
+  </p>
+</div>
+
+<script>
+  // Replace the button with the map; focus moves to the map, so keyboard users stay in place.
+  for (const button of document.querySelectorAll<HTMLButtonElement>('button[data-map-src]')) {
+    button.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = button.dataset['mapSrc'] ?? '';
+      iframe.title = button.dataset['mapTitle'] ?? 'Mapa';
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.className = 'aspect-[4/3] w-full rounded-md border border-ink/15';
+      button.closest('[data-map]')?.replaceChildren(iframe);
+      iframe.focus();
+    });
+  }
+</script>
