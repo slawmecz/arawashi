@@ -23,9 +23,10 @@ const contactPageHasContent = Boolean(
   settings.instagramUrl,
 );
 const showContactPageLink = contactPageHasContent && !Astro.url.pathname.startsWith('/kontakt');
+// Footer links are blue (the brand's second colour), with a matching focus ring.
 const focusRing =
-  'focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red';
-const linkClass = `rounded font-semibold text-brand-red underline underline-offset-4 hover:text-brand-red-dark ${focusRing}`;
+  'focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue';
+const linkClass = `rounded font-semibold text-brand-blue underline underline-offset-4 hover:text-brand-blue-dark ${focusRing}`;
 ---
 
 <footer class="border-t-4 border-brand-red bg-zinc-100 text-ink">

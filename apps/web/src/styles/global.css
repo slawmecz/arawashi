@@ -10,7 +10,9 @@
   --color-brand-red-dark: #9e0c24;
   /* Small text on dark backgrounds (about 6.4:1 on ink). */
   --color-brand-red-bright: #ff5a5f;
+  /* Footer links: about 8.8:1 on its light grey (the dark shade, for hover, about 11.5:1). */
   --color-brand-blue: #1f3f8f;
+  --color-brand-blue-dark: #172f6b;
   /* Near-black page sections. */
   --color-ink: #0b0b0d;
   --color-paper: #ffffff;
