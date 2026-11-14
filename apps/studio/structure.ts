@@ -1,7 +1,21 @@
 /**
- * Studio menu in Polish. "Dane klubu" and "Poznaj Arawashi" are singletons (exactly one
- * document each), so editors open them directly instead of picking from a list.
+ * Studio menu in Polish, laid out like the website's own menu (Aktualności, Treningi, Obozy,
+ * Klub, Kontakt), so editors find each thing where they see it on the site.
+ * "Poznaj Arawashi" and "Kontakt i dane klubu" are singletons (exactly one document each), so
+ * they open directly instead of showing a list.
  */
+import { CalendarIcon } from '@sanity/icons/Calendar';
+import { ClockIcon } from '@sanity/icons/Clock';
+import { DocumentPdfIcon } from '@sanity/icons/DocumentPdf';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+import { EnvelopeIcon } from '@sanity/icons/Envelope';
+import { HelpCircleIcon } from '@sanity/icons/HelpCircle';
+import { HomeIcon } from '@sanity/icons/Home';
+import { InfoOutlineIcon } from '@sanity/icons/InfoOutline';
+import { StarIcon } from '@sanity/icons/Star';
+import { SunIcon } from '@sanity/icons/Sun';
+import { UserIcon } from '@sanity/icons/User';
+import { UsersIcon } from '@sanity/icons/Users';
 import type { StructureResolver } from 'sanity/structure';
 
 export const SINGLETONS = ['siteSettings', 'aboutPage'];
@@ -10,27 +24,66 @@ export const structure: StructureResolver = (S) =>
   S.list()
     .title('Strona klubu')
     .items([
-      S.listItem().title('Aktualności').child(S.documentTypeList('newsPost').title('Aktualności')),
-      S.divider(),
       S.listItem()
-        .title('Grupy treningowe')
-        .child(S.documentTypeList('trainingGroup').title('Grupy')),
+        .title('Aktualności')
+        .icon(DocumentTextIcon)
+        .child(
+          S.documentTypeList('newsPost')
+            .title('Aktualności')
+            .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }]),
+        ),
       S.listItem()
-        .title('Grafik zajęć')
-        .child(S.documentTypeList('scheduleSlot').title('Grafik zajęć')),
-      S.listItem().title('Obozy i półkolonie').child(S.documentTypeList('camp').title('Obozy')),
-      S.divider(),
-      S.listItem().title('Kadra trenerska').child(S.documentTypeList('coach').title('Kadra')),
+        .title('Treningi')
+        .icon(CalendarIcon)
+        .child(
+          S.list()
+            .title('Treningi')
+            .items([
+              S.listItem()
+                .title('Grafik zajęć (dni i godziny)')
+                .icon(ClockIcon)
+                .child(S.documentTypeList('scheduleSlot').title('Grafik zajęć')),
+              S.listItem()
+                .title('Grupy')
+                .icon(UsersIcon)
+                .child(S.documentTypeList('trainingGroup').title('Grupy')),
+            ]),
+        ),
       S.listItem()
-        .title('Osiągnięcia')
-        .child(S.documentTypeList('achievement').title('Osiągnięcia')),
-      S.listItem().title('Dokumenty').child(S.documentTypeList('clubDocument').title('Dokumenty')),
-      S.listItem().title('Pytania i odpowiedzi').child(S.documentTypeList('faqItem').title('FAQ')),
-      S.divider(),
+        .title('Obozy i półkolonie')
+        .icon(SunIcon)
+        .child(S.documentTypeList('camp').title('Obozy i półkolonie')),
       S.listItem()
-        .title('Poznaj Arawashi (o klubie)')
-        .child(S.document().schemaType('aboutPage').documentId('aboutPage')),
+        .title('Klub')
+        .icon(HomeIcon)
+        .child(
+          S.list()
+            .title('Klub')
+            .items([
+              S.listItem()
+                .title('Poznaj Arawashi (o klubie)')
+                .icon(InfoOutlineIcon)
+                .child(S.document().schemaType('aboutPage').documentId('aboutPage')),
+              S.listItem()
+                .title('Kadra trenerska')
+                .icon(UserIcon)
+                .child(S.documentTypeList('coach').title('Kadra trenerska')),
+              S.listItem()
+                .title('Osiągnięcia')
+                .icon(StarIcon)
+                .child(S.documentTypeList('achievement').title('Osiągnięcia')),
+              S.listItem()
+                .title('Dokumenty')
+                .icon(DocumentPdfIcon)
+                .child(S.documentTypeList('clubDocument').title('Dokumenty')),
+              S.listItem()
+                .title('Pytania i odpowiedzi')
+                .icon(HelpCircleIcon)
+                .child(S.documentTypeList('faqItem').title('Pytania i odpowiedzi')),
+            ]),
+        ),
       S.listItem()
-        .title('Dane klubu i kontakt')
+        .title('Kontakt i dane klubu')
+        .icon(EnvelopeIcon)
         .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
     ]);

@@ -1,0 +1,66 @@
+name: Check the CMS for new content
+
+# Every 10 minutes: when the published content in Sanity has changed since the last check, start
+# the deploy workflow, so a post published in the Studio appears on the site within minutes.
+# No token is needed: the dataset is public and only published documents are read.
+# A Sanity webhook could start the deploy instantly instead (docs/setup.md, step 4).
+# Note: GitHub pauses scheduled workflows in public repositories after 60 days without commits;
+# re-enable it in the Actions tab if that happens (the nightly deploy is paused too).
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write # start the deploy workflow
+
+concurrency:
+  group: content-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    if: vars.SANITY_PROJECT_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # The ID and revision of every published document: any edit, new post or deletion
+      # changes this list (drafts are not included, so saving a draft does not rebuild).
+      - name: Fingerprint the published content
+        id: fingerprint
+        env:
+          PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
+          DATASET: ${{ vars.SANITY_DATASET || 'production' }}
+        run: |
+          mkdir -p marker
+          curl --fail --silent --show-error --get --max-time 30 \
+            "https://${PROJECT_ID}.api.sanity.io/v2026-11-01/data/query/${DATASET}" \
+            --data-urlencode 'query=*[]{_id, _rev} | order(_id asc)' \
+            --data-urlencode 'perspective=published' \
+            | jq --compact-output --exit-status '.result' > marker/content.json
+          echo "hash=$(sha256sum marker/content.json | cut -c1-32)" >> "$GITHUB_OUTPUT"
+          echo "$(jq length marker/content.json) published documents"
+
+      # A tiny cache entry per fingerprint remembers which content has already been sent to a
+      # build. Entries unused for 7 days expire; then the site is simply rebuilt once more.
+      - name: Was this content already built?
+        id: seen
+        uses: actions/cache/restore@v6
+        with:
+          path: marker
+          key: content-${{ steps.fingerprint.outputs.hash }}
+          lookup-only: true
+
+      - name: Start the deploy
+        if: steps.seen.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --repo "$GITHUB_REPOSITORY" --ref main
+
+      - name: Remember this content
+        if: steps.seen.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: marker
+          key: content-${{ steps.fingerprint.outputs.hash }}

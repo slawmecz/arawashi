@@ -48,12 +48,18 @@ After DNS propagates, tick **Enforce HTTPS** in the repository Pages settings (i
 
 ## 3. Sanity (content editing)
 
-1. Create a project at <https://www.sanity.io/manage> (Free plan), dataset `production`,
-   **public** visibility.
-2. `cp apps/studio/.env.example apps/studio/.env` and set `SANITY_STUDIO_PROJECT_ID`.
-3. `pnpm studio:dev` to try it locally, then `pnpm --filter @arawashi/studio deploy` →
-   the Studio is published at `https://arawashi.sanity.studio`.
-4. **Manage → Members → Invite** the editors (Google accounts).
+1. Create a project at <https://www.sanity.io/manage>, dataset `production`, **public**
+   visibility. (Done: the club's project is `q5j90txn`; the Studio config uses it by default.)
+   A new project starts with a free 30-day trial of the Growth plan and then drops to the Free
+   plan by itself; no card is needed. The Studio switches off the Growth-only features (tasks,
+   comments, releases, scheduling), so nothing editors use disappears after the trial.
+2. Optional: `cp apps/studio/.env.example apps/studio/.env` to point the Studio at another
+   project or dataset.
+3. `pnpm studio:dev` to try it locally, then `npx sanity login` once and
+   `pnpm --filter @arawashi/studio deploy` → the Studio is published at
+   `https://arawashi.sanity.studio` (Sanity opens it inside its dashboard).
+4. **Manage → Members → Invite** the editors (Google accounts). The Free plan has only two roles,
+   Administrator and Viewer, so editors need **Administrator**.
 5. Repository **Settings → Secrets and variables → Actions → Variables**:
    `SANITY_PROJECT_ID` = project ID, `SANITY_DATASET` = `production`.
    _Privacy note:_ in a public dataset every uploaded file is reachable by its URL as soon as it
@@ -61,10 +67,10 @@ After DNS propagates, tick **Enforce HTTPS** in the repository Pages settings (i
    stronger protection make the dataset **private** (a paid Sanity plan): create a read-only API
    token and add it as the repository **secret** `SANITY_READ_TOKEN` (the deploy workflow already
    passes it to the build when it exists).
-6. Start by filling **Dane klubu i kontakt**, then groups, schedule and documents. The phone
+6. Start by filling **Kontakt i dane klubu**, then groups, schedule and documents. The phone
    number, e-mail and Facebook/Instagram addresses matter most: until they are set, the pages
    point visitors to the signup form instead of the contact page, and the social icons are hidden.
-7. Optional: **Dane klubu i kontakt → Zdjęcie w tle hasła** adds the home page hero photo (a
+7. Optional: **Kontakt i dane klubu → Zdjęcie w tle hasła** adds the home page hero photo (a
    generic karate photo with no recognisable children; its source and licence are required).
    Drag the focal point onto the subject: phones show a portrait crop around it, larger screens a
    wide crop. Without a photo the hero keeps its dark gradient. A dark, low-key photo with the
@@ -89,7 +95,16 @@ An invalid file fails the build, and the site keeps its previous version. The se
 48 KB. Once Sanity is connected (`SANITY_PROJECT_ID` is set), the CMS wins: move the content into
 the Studio and delete the secret.
 
-### Rebuild on publish (webhook)
+### Rebuild on publish
+
+The workflow **Check the CMS for new content** (`.github/workflows/content-check.yml`) runs every
+10 minutes. When the published content has changed, it starts the deploy, so a post published in
+the Studio is on the site within about 10–15 minutes. It needs no token (the dataset is public).
+
+GitHub pauses scheduled workflows in a public repository after 60 days without commits. If the
+site stops updating, re-enable **Check the CMS for new content** in the Actions tab.
+
+Optional, for instant updates: a Sanity webhook that starts the deploy right away.
 
 1. GitHub → profile **Settings → Developer settings → Fine-grained tokens → Generate**:
    repository access _only this repository_, permission **Actions: Read and write**.
@@ -102,7 +117,7 @@ the Studio and delete the secret.
    - Headers: `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`,
      `X-GitHub-Api-Version: 2022-11-28`
 
-Publishing in the Studio now updates the site within a few minutes.
+Publishing in the Studio then updates the site within 2–3 minutes.
 
 ## 4. Signup form (Cloudflare Worker, Turnstile, Brevo)
 
