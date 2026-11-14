@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NBSP, WORD_JOINER, nbsp, nbspHtml } from './typography';
+import { NBSP, WORD_JOINER, nbsp, nbspHtml, plainText } from './typography';
 
 /** "~" stands for a non-breaking space, "^" for a word joiner. */
 const n = (text: string) => text.replaceAll('~', NBSP).replaceAll('^', WORD_JOINER);
@@ -68,5 +68,12 @@ describe('nbspHtml', () => {
 
   it('handles empty input', () => {
     expect(nbspHtml('')).toBe('');
+  });
+});
+
+describe('plainText', () => {
+  it('turns typeset text back into the original text', () => {
+    const text = 'Sala w szkole, ul. Szkolna 1, 00-950 Przykładowo';
+    expect(plainText(nbsp(text))).toBe(text);
   });
 });

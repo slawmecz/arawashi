@@ -24,6 +24,11 @@ const POSTAL_HYPHEN = /\b(\d{2})-(?=\d{3}\b)/g;
 const BEFORE_DASH = /[ \t\r\n]+(?=[\u2013\u2014][ \t\r\n])/g;
 const LONG_DASH = /\u2014/g;
 
+/** Turns typeset text back into plain text (for URLs and search queries). */
+export function plainText(text: string): string {
+  return text.replaceAll(NBSP, ' ').replaceAll(WORD_JOINER, '');
+}
+
 /** Applies the non-breaking-space rules to plain text. */
 export function nbsp(text: string): string {
   return (

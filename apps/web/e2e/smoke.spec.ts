@@ -71,6 +71,20 @@ test('the current section is marked in the main menu', async ({ page, isMobile }
   await expect(menu.getByRole('link', { name: 'Klub' })).toHaveAttribute('aria-current', 'true');
 });
 
+test('"Strona główna" is marked in the main menu only on the home page', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'The desktop menu is hidden on small screens.');
+  const home = page.getByRole('navigation', { name: 'Menu główne' }).getByRole('link', {
+    name: 'Strona główna',
+  });
+  await page.goto('/');
+  await expect(home).toHaveAttribute('aria-current', 'page');
+  await page.goto('/klub/');
+  await expect(home).not.toHaveAttribute('aria-current');
+});
+
 test('unknown URLs show the 404 page', async ({ page }) => {
   const response = await page.goto('/ta-strona-nie-istnieje/');
 

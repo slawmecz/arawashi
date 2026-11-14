@@ -18,7 +18,8 @@ describe('site config', () => {
   it('menu and call-to-action links are unique trailing-slash paths', () => {
     const hrefs = [...mainNav, signupLink].map((link) => link.href);
     expect(new Set(hrefs).size).toBe(hrefs.length);
-    for (const href of hrefs) expect(href).toMatch(/^\/[a-z0-9-]+\/$/);
+    // "/" (Strona główna) or one lowercase segment with a trailing slash.
+    for (const href of hrefs) expect(href).toMatch(/^\/(?:[a-z0-9-]+\/)?$/);
   });
 
   it('partner links use https', () => {

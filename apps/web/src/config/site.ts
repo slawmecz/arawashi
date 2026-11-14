@@ -35,6 +35,7 @@ export interface NavLink {
 
 /** Main menu, in display order. */
 export const mainNav: readonly NavLink[] = [
+  { label: 'Strona główna', href: '/' },
   { label: 'Aktualności', href: '/aktualnosci/' },
   { label: 'Klub', href: '/klub/' },
   { label: 'Treningi', href: '/treningi/' },

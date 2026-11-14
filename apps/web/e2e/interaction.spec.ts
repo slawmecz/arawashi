@@ -16,6 +16,26 @@ const PAGES = [
   '/polityka-prywatnosci/',
 ];
 
+test('the contact page loads the Google map only after a click', async ({ page }) => {
+  const googleRequests: string[] = [];
+  await page.route('https://www.google.com/**', (route) => {
+    googleRequests.push(route.request().url());
+    return route.abort();
+  });
+  await page.goto('/kontakt/');
+  await expect(page.locator('iframe')).toHaveCount(0);
+  expect(googleRequests).toEqual([]);
+
+  await page.getByRole('button', { name: 'Pokaż mapę' }).first().click();
+  const map = page.locator('iframe[title^="Mapa"]').first();
+  await expect(map).toHaveAttribute(
+    'src',
+    /^https:\/\/www\.google\.com\/maps\?q=Sala%20testowa%2C/,
+  );
+  // Typesetting characters (non-breaking space, word joiner) must not leak into the query.
+  expect(await map.getAttribute('src')).not.toMatch(/%C2%A0|%E2%81%A0/);
+});
+
 test('the mobile menu closes on a tap outside it', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'The collapsible menu is only shown on small screens.');
   await page.goto('/klub/');
@@ -45,15 +65,16 @@ test('with the keyboard, the menu closes on Escape (focus back on Menu) and when
   await expect(menu).toBeVisible();
   // Move into the menu first, so the focus check below proves the script moved it back.
   await page.keyboard.press('Tab');
-  await expect(menu.getByRole('link', { name: 'Aktualności' })).toBeFocused();
+  await expect(menu.getByRole('link', { name: 'Strona główna' })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
   await expect(summary).toBeFocused();
 
   await page.keyboard.press('Enter');
   await expect(menu).toBeVisible();
-  // Five menu links and the signup button, then one more Tab leaves the menu.
-  for (let i = 0; i < 7; i += 1) await page.keyboard.press('Tab');
+  // Every link in the menu (signup included), then one more Tab leaves the menu.
+  const links = await menu.getByRole('link').count();
+  for (let i = 0; i <= links; i += 1) await page.keyboard.press('Tab');
   await expect(menu).toBeHidden();
 });
 
