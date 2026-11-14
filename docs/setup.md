@@ -97,14 +97,17 @@ the Studio and delete the secret.
 
 ### Rebuild on publish
 
-The workflow **Check the CMS for new content** (`.github/workflows/content-check.yml`) runs every
-10 minutes. When the published content has changed, it starts the deploy, so a post published in
-the Studio is on the site within about 10–15 minutes. It needs no token (the dataset is public).
+**Recommended: a Sanity webhook** that starts the deploy right after "Publikuj" (steps below).
 
-GitHub pauses scheduled workflows in a public repository after 60 days without commits. If the
-site stops updating, re-enable **Check the CMS for new content** in the Actions tab.
+Without it, only the scheduled workflows rebuild the site: **Check the CMS for new content**
+(`.github/workflows/content-check.yml`, every 10 minutes, no token needed) and the nightly
+deploy. GitHub runs schedules late or skips them under load. Measured on this repository
+(2026-11-12 to 2026-11-14): the 03:30 UTC nightly deploy started 7–8 hours late, and the
+10-minute check did not start once in its first hour. So the schedule is only a safety net.
+GitHub also pauses scheduled workflows in a public repository after 60 days without commits;
+re-enable them in the Actions tab if that happens.
 
-Optional, for instant updates: a Sanity webhook that starts the deploy right away.
+Webhook setup:
 
 1. GitHub → profile **Settings → Developer settings → Fine-grained tokens → Generate**:
    repository access _only this repository_, permission **Actions: Read and write**.

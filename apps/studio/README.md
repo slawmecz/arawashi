@@ -3,7 +3,8 @@
 The content editor of the website, in Polish, published at <https://arawashi.sanity.studio>.
 Club editors log in with Google. The menu follows the website's own menu: Aktualności, Treningi
 (schedule and groups), Obozy i półkolonie, Klub (about, coaches, achievements, documents, FAQ)
-and Kontakt i dane klubu. Publishing updates the website within about 10–15 minutes (see
+and Kontakt i dane klubu. With the Sanity webhook, publishing updates the website within 2–3
+minutes; without it, only GitHub's (often late) scheduled runs rebuild the site (see
 [`docs/setup.md`](../../docs/setup.md), "Rebuild on publish").
 
 - Schemas: [`schemaTypes/documents.ts`](schemaTypes/documents.ts). Field names must match the
