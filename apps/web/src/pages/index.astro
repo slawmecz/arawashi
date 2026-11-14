@@ -39,13 +39,17 @@ const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline
 
 <BaseLayout mainClass="flex flex-col">
   <script is:inline type="application/ld+json" set:html={jsonLd} />
-  {/* grow: on a short page (empty CMS) the hero fills the space above the footer. */}
+  {/* grow: on a short page (empty CMS) the hero fills the space above the footer.
+      Phones and tablets: the text sits on solid ink and the photo is a 20rem band below it
+      (the photo never runs behind the text). From lg: text on the left, photo on the right.
+      The band height (h-80 = 20rem) is repeated in the scrim stops, the calligraphy offset
+      and the text's bottom padding (pb-76 = 19rem: the band overlaps the last 1rem). */}
   <section class="relative isolate flex grow flex-col justify-center overflow-hidden bg-ink text-white">
     {/* The club's own photo from the CMS, otherwise the default photo (config/site.ts). */}
     {heroImage ? (
       <HeroPicture
         image={heroImage}
-        class="absolute inset-0 -z-30 size-full object-cover forced-colors:hidden"
+        class="absolute inset-x-0 bottom-0 -z-30 h-80 w-full object-cover forced-colors:hidden lg:top-0 lg:h-full"
       />
     ) : (
       <Picture
@@ -53,38 +57,39 @@ const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline
         alt=""
         formats={['avif', 'webp']}
         widths={[640, 960, 1280, 1600, 2400]}
-        sizes="(max-width: 47.99rem) 280vw, (max-width: 63.99rem) 150vw, 90vw"
+        sizes="(max-width: 29.99rem) 135vw, (max-width: 63.99rem) 100vw, 90vw"
         loading="eager"
         fetchpriority="high"
-        class="absolute inset-y-0 right-0 -z-30 h-full w-full object-cover object-[50%_55%] forced-colors:hidden lg:w-[60%]"
+        class="absolute right-0 bottom-0 -z-30 h-80 w-full object-cover object-[50%_58%] forced-colors:hidden lg:top-0 lg:h-full lg:w-[60%] lg:object-[50%_55%]"
       />
     )}
-    {/* Scrim keeping WCAG AA text contrast on any photo: a flat 70 % layer on phones and
-        tablets (text spans the width), a left-to-right gradient from lg (text on the left,
-        photo visible on the right, as in the club's mockup). Measured: shots/hero-contrast. */}
+    {/* Scrim keeping WCAG AA text contrast on any photo. Phones and tablets: solid ink behind
+        the text, fading into the photo band. From lg: a left-to-right gradient (text on the
+        left, photo visible on the right, as in the club's mockup). */}
     <div
       aria-hidden="true"
-      class="absolute inset-0 -z-20 max-lg:bg-ink/70 lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)]"
+      class="absolute inset-0 -z-20 max-lg:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_20rem),color-mix(in_srgb,var(--color-ink)_45%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))] lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)]"
     />
-    {/* Decorative calligraphy: 空手道 (karate-dō, "the way of the empty hand"), inset from the
-        edge. Its reading in Latin letters shows from xl only, where it fits in the margin left
-        of the hero text instead of running behind it. */}
+    {/* Decorative calligraphy: 空手道 (karate-dō, "the way of the empty hand"). Phones and
+        tablets: clearly visible on the left of the photo band, below the text. From lg: large
+        and faint at the left edge. Its reading in Latin letters shows from xl only, where it
+        fits in the margin left of the hero text instead of running behind it. */}
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute top-1/2 left-4 -z-10 flex -translate-y-1/2 items-center gap-3 select-none forced-colors:hidden md:left-6"
+      class="pointer-events-none absolute top-[calc(100%_-_17.5rem)] left-4 -z-10 flex items-center gap-3 select-none forced-colors:hidden md:left-6 lg:top-1/2 lg:-translate-y-1/2"
     >
       <p class="text-lg font-semibold tracking-[0.4em] whitespace-nowrap text-white/50 [writing-mode:vertical-rl] max-xl:hidden">
         KARATE-DŌ
       </p>
       <p
         lang="ja"
-        class="text-[9rem] leading-none font-bold whitespace-nowrap text-white/5 [writing-mode:vertical-rl] md:text-[12rem]"
+        class="text-[4rem] leading-none font-bold whitespace-nowrap text-white/50 [text-shadow:0_2px_14px_rgb(0_0_0/0.7)] [writing-mode:vertical-rl] lg:text-[12rem] lg:text-white/5 lg:[text-shadow:none]"
       >
         空手道
       </p>
     </div>
 
-    <div class="mx-auto w-full max-w-6xl px-4 py-24 md:py-36">
+    <div class="mx-auto w-full max-w-6xl px-4 pt-24 pb-76 md:pt-36 lg:pb-36">
       {/* Flex with a gap, so source formatting cannot change the spacing: one line with "·"
           from sm, two deliberate lines (no dangling separator) on phones. */}
       <p
