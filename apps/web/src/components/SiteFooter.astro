@@ -39,12 +39,14 @@ const linkClass = `rounded font-semibold text-brand-blue underline underline-off
       <ul class="grid grid-cols-2 items-center gap-6 min-[30rem]:flex min-[30rem]:flex-wrap">
         <li>
           <a href="/" class={`block w-fit rounded ${focusRing}`}>
+            {/* 64 px on phones and tablets, 112 px on computers (the row still fits on one line
+                from 1024 px; the contact column sets the footer height). */}
             <Image
               src={site.logo}
               alt={`${site.name} – strona główna`}
-              width={160}
-              height={160}
-              class="size-16 rounded-full lg:size-20"
+              width={224}
+              height={224}
+              class="size-16 rounded-full lg:size-28"
             />
           </a>
         </li>
