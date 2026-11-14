@@ -72,8 +72,9 @@ test('with the keyboard, the menu closes on Escape (focus back on Menu) and when
 
   await page.keyboard.press('Enter');
   await expect(menu).toBeVisible();
-  // Five menu links and the signup button, then one more Tab leaves the menu.
-  for (let i = 0; i < 7; i += 1) await page.keyboard.press('Tab');
+  // Every link in the menu (signup included), then one more Tab leaves the menu.
+  const links = await menu.getByRole('link').count();
+  for (let i = 0; i <= links; i += 1) await page.keyboard.press('Tab');
   await expect(menu).toBeHidden();
 });
 
