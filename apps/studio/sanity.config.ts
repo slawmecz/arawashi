@@ -15,6 +15,16 @@ const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'q5j90txn';
 const dataset = process.env.SANITY_STUDIO_DATASET || 'production';
 const isDev = process.env.NODE_ENV === 'development';
 
+/** Document menu items editors do not need (Sanity Canvas is a separate product). */
+const HIDDEN_ACTIONS: ReadonlySet<string> = new Set([
+  'linkToCanvas',
+  'editInCanvas',
+  'unlinkFromCanvas',
+]);
+
+/** Singletons can only be published, reverted or restored (not duplicated or deleted). */
+const SINGLETON_ACTIONS: ReadonlySet<string> = new Set(['publish', 'discardChanges', 'restore']);
+
 export default defineConfig({
   name: 'arawashi',
   title: 'Arawashi – panel strony',
@@ -54,12 +64,11 @@ export default defineConfig({
   },
   document: {
     comments: { enabled: false },
-    // Singletons cannot be duplicated or deleted.
     actions: (actions, { schemaType }) =>
-      SINGLETONS.includes(schemaType)
-        ? actions.filter(
-            ({ action }) => action && ['publish', 'discardChanges', 'restore'].includes(action),
-          )
-        : actions,
+      actions.filter(({ action }) =>
+        SINGLETONS.includes(schemaType)
+          ? action !== undefined && SINGLETON_ACTIONS.has(action)
+          : action === undefined || !HIDDEN_ACTIONS.has(action),
+      ),
   },
 });

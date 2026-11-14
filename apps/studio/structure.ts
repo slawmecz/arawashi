@@ -20,6 +20,9 @@ import type { StructureResolver } from 'sanity/structure';
 
 export const SINGLETONS = ['siteSettings', 'aboutPage'];
 
+/** Lists follow the same order as the website (the "Kolejność" field, lower first). */
+const BY_ORDER = [{ field: 'order', direction: 'asc' as const }];
+
 export const structure: StructureResolver = (S) =>
   S.list()
     .title('Strona klubu')
@@ -42,17 +45,30 @@ export const structure: StructureResolver = (S) =>
               S.listItem()
                 .title('Grafik zajęć (dni i godziny)')
                 .icon(ClockIcon)
-                .child(S.documentTypeList('scheduleSlot').title('Grafik zajęć')),
+                .child(
+                  S.documentTypeList('scheduleSlot')
+                    .title('Grafik zajęć')
+                    .defaultOrdering([
+                      { field: 'day', direction: 'asc' },
+                      { field: 'start', direction: 'asc' },
+                    ]),
+                ),
               S.listItem()
                 .title('Grupy')
                 .icon(UsersIcon)
-                .child(S.documentTypeList('trainingGroup').title('Grupy')),
+                .child(
+                  S.documentTypeList('trainingGroup').title('Grupy').defaultOrdering(BY_ORDER),
+                ),
             ]),
         ),
       S.listItem()
         .title('Obozy i półkolonie')
         .icon(SunIcon)
-        .child(S.documentTypeList('camp').title('Obozy i półkolonie')),
+        .child(
+          S.documentTypeList('camp')
+            .title('Obozy i półkolonie')
+            .defaultOrdering([{ field: 'startDate', direction: 'desc' }]),
+        ),
       S.listItem()
         .title('Klub')
         .icon(HomeIcon)
@@ -67,19 +83,31 @@ export const structure: StructureResolver = (S) =>
               S.listItem()
                 .title('Kadra trenerska')
                 .icon(UserIcon)
-                .child(S.documentTypeList('coach').title('Kadra trenerska')),
+                .child(
+                  S.documentTypeList('coach').title('Kadra trenerska').defaultOrdering(BY_ORDER),
+                ),
               S.listItem()
                 .title('Osiągnięcia')
                 .icon(StarIcon)
-                .child(S.documentTypeList('achievement').title('Osiągnięcia')),
+                .child(
+                  S.documentTypeList('achievement')
+                    .title('Osiągnięcia')
+                    .defaultOrdering([{ field: 'date', direction: 'desc' }]),
+                ),
               S.listItem()
                 .title('Dokumenty')
                 .icon(DocumentPdfIcon)
-                .child(S.documentTypeList('clubDocument').title('Dokumenty')),
+                .child(
+                  S.documentTypeList('clubDocument').title('Dokumenty').defaultOrdering(BY_ORDER),
+                ),
               S.listItem()
                 .title('Pytania i odpowiedzi')
                 .icon(HelpCircleIcon)
-                .child(S.documentTypeList('faqItem').title('Pytania i odpowiedzi')),
+                .child(
+                  S.documentTypeList('faqItem')
+                    .title('Pytania i odpowiedzi')
+                    .defaultOrdering(BY_ORDER),
+                ),
             ]),
         ),
       S.listItem()
