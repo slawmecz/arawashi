@@ -1,9 +1,9 @@
 name: Check the CMS for new content
 
-# Every 10 minutes: when the published content in Sanity has changed since the last check, start
-# the deploy workflow, so a post published in the Studio appears on the site within minutes.
-# No token is needed: the dataset is public and only published documents are read.
-# A Sanity webhook could start the deploy instantly instead (docs/setup.md, step 4).
+# Safety net for rebuilds: scheduled every 10 minutes, it starts the deploy workflow when the
+# published content in Sanity has changed since the last check. No token is needed: the dataset
+# is public and only published documents are read. GitHub often runs schedules late or skips them
+# (measured here: hours late), so the Sanity webhook is the main trigger (docs/setup.md, step 3).
 # Note: GitHub pauses scheduled workflows in public repositories after 60 days without commits;
 # re-enable it in the Actions tab if that happens (the nightly deploy is paused too).
 on:
