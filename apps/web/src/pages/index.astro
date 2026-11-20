@@ -35,21 +35,39 @@ const linkClass =
 // Stretched link: the whole card is clickable, not only its title (the ::after covers the card).
 const cardLink = 'after:absolute after:inset-0 after:rounded-lg';
 const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline underline-offset-4 hover:text-white ${focusRing}`;
+
+// Narrow phones (< 27.5rem, the two buttons stacked): the photo band starts 2rem above the
+// buttons, so the first screen shows the photo around them. Its height is everything below that
+// point, in rem: 2 + 8 (two stacked buttons) + 6 (the "Śledź nas" row with its margin) + 19 (the
+// text's bottom padding) = 35, or 29 without the social row. The scrim stops repeat these values:
+// solid ink above the band (the lead text), the photo at 40% ink around the buttons (the outline
+// button has its own dark fill), 72% ink behind "Śledź nas", then clear below the text.
+const hasSocial = Boolean(settings.facebookUrl || settings.instagramUrl);
+// Bounded ranges, so these never compete with the lg classes.
+const phoneBand = hasSocial
+  ? 'max-[27.5rem]:h-[35rem] min-[27.5rem]:max-lg:h-80'
+  : 'max-[27.5rem]:h-[29rem] min-[27.5rem]:max-lg:h-80';
+const phoneScrim = hasSocial
+  ? 'max-[27.5rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_35rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_31rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_25.5rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_23.25rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_19rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]'
+  : 'max-[27.5rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_29rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_25rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_19rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]';
+// The 3:2 photo fills the band's height there, so it is drawn 1.5 × the band height wide.
+const phonePhotoWidth = hasSocial ? '52.5rem' : '43.5rem';
 ---
 
 <BaseLayout mainClass="flex flex-col">
   <script is:inline type="application/ld+json" set:html={jsonLd} />
   {/* grow: on a short page (empty CMS) the hero fills the space above the footer.
-      Phones and tablets: the text sits on solid ink and the photo is a 20rem band below it
-      (the photo never runs behind the text). From lg: text on the left, photo on the right.
-      The band height (h-80 = 20rem) is repeated in the scrim stops, the calligraphy offset
-      and the text's bottom padding (pb-76 = 19rem: the band overlaps the last 1rem). */}
+      Narrow phones (< 27.5rem): the photo band starts just above the buttons (see phoneBand).
+      Wider phones and tablets: the text sits on solid ink and the photo is a 20rem band below
+      it. From lg: text on the left, photo on the right. The 20rem band height (h-80) is
+      repeated in the scrim stops, the calligraphy offset and the text's bottom padding
+      (pb-76 = 19rem: the band overlaps the last 1rem). */}
   <section class="relative isolate flex grow flex-col justify-center overflow-hidden bg-ink text-white">
     {/* The club's own photo from the CMS, otherwise the default photo (config/site.ts). */}
     {heroImage ? (
       <HeroPicture
         image={heroImage}
-        class="absolute inset-x-0 bottom-0 -z-30 h-80 w-full object-cover forced-colors:hidden lg:top-0 lg:h-full"
+        class={`absolute inset-x-0 bottom-0 -z-30 w-full object-cover forced-colors:hidden lg:top-0 lg:h-full ${phoneBand}`}
       />
     ) : (
       <Picture
@@ -57,18 +75,19 @@ const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline
         alt=""
         formats={['avif', 'webp']}
         widths={[640, 960, 1280, 1600, 2400]}
-        sizes="(max-width: 29.99rem) 135vw, (max-width: 63.99rem) 100vw, 90vw"
+        sizes={`(max-width: 27.49rem) ${phonePhotoWidth}, (max-width: 29.99rem) 135vw, (max-width: 63.99rem) 100vw, 90vw`}
         loading="eager"
         fetchpriority="high"
-        class="absolute right-0 bottom-0 -z-30 h-80 w-full object-cover object-[50%_58%] forced-colors:hidden lg:top-0 lg:h-full lg:w-[60%] lg:object-[50%_55%]"
+        class={`absolute right-0 bottom-0 -z-30 w-full object-cover object-[50%_58%] forced-colors:hidden lg:top-0 lg:h-full lg:w-[60%] lg:object-[50%_55%] ${phoneBand}`}
       />
     )}
-    {/* Scrim keeping WCAG AA text contrast on any photo. Phones and tablets: solid ink behind
-        the text, fading into the photo band. From lg: a left-to-right gradient (text on the
-        left, photo visible on the right, as in the club's mockup). */}
+    {/* Scrim keeping WCAG AA text contrast on any photo. Narrow phones: see phoneScrim. Wider
+        phones and tablets: solid ink behind the text, fading into the photo band. From lg: a
+        left-to-right gradient (text on the left, photo visible on the right, as in the club's
+        mockup). */}
     <div
       aria-hidden="true"
-      class="absolute inset-0 -z-20 max-lg:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_20rem),color-mix(in_srgb,var(--color-ink)_45%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))] lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)]"
+      class={`absolute inset-0 -z-20 min-[27.5rem]:max-lg:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_20rem),color-mix(in_srgb,var(--color-ink)_45%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))] lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)] ${phoneScrim}`}
     />
     {/* Decorative calligraphy: 空手道 (karate-dō, "the way of the empty hand"). Phones and
         tablets: clearly visible on the left of the photo band, below the text. From lg: large
@@ -112,7 +131,9 @@ const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline
         – wartości, na których szkolimy przyszłych{' '}
         <strong class="text-white uppercase">mistrzów</strong>.
       </p>
-      <div class="mt-10 flex flex-wrap gap-4">
+      {/* Narrow phones: always stacked (the photo band's height counts on two rows), and the
+          outline button gets a dark fill because it sits on the photo there. */}
+      <div class="mt-10 flex flex-wrap gap-4 max-[27.5rem]:flex-col max-[27.5rem]:items-start">
         <a
           href="/zapisz-sie/"
           class={`rounded-md border-2 border-brand-red bg-brand-red px-6 py-3 text-lg font-semibold hover:border-brand-red-dark hover:bg-brand-red-dark ${focusRing}`}
@@ -121,7 +142,7 @@ const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline
         </a>
         <a
           href="/klub/"
-          class={`rounded-md border-2 border-white px-6 py-3 text-lg font-semibold hover:bg-white hover:text-ink ${focusRing}`}
+          class={`rounded-md border-2 border-white px-6 py-3 text-lg font-semibold hover:bg-white hover:text-ink max-[27.5rem]:bg-ink/80 ${focusRing}`}
         >
           Poznaj Arawashi
         </a>
