@@ -36,20 +36,22 @@ const linkClass =
 const cardLink = 'after:absolute after:inset-0 after:rounded-lg';
 const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline underline-offset-4 hover:text-white ${focusRing}`;
 
-// Narrow phones (< 27.5rem, the two buttons stacked): the photo band starts 2rem above the
+// Narrow phones (< 30rem, the two buttons stacked): the photo band starts 2rem above the
 // buttons, so the first screen shows the photo around them. Its height is everything below that
 // point, in rem: 2 + 8 (two stacked buttons) + 6 (the "Śledź nas" row with its margin) + 19 (the
 // text's bottom padding) = 35, or 29 without the social row. The scrim stops repeat these values:
-// solid ink above the band (the lead text), the photo at 40% ink around the buttons (the outline
-// button has its own dark fill), 72% ink behind "Śledź nas", then clear below the text.
+// solid ink above the band (the lead text), easing over 8rem to 40% ink around the buttons (the
+// outline button has its own dark fill), 72% ink behind "Śledź nas", then clear below the text.
+// Every change of opacity follows smoothstep (generated stops), so no edge shows where a linear
+// ramp would start or end.
 const hasSocial = Boolean(settings.facebookUrl || settings.instagramUrl);
 // Bounded ranges, so these never compete with the lg classes.
 const phoneBand = hasSocial
-  ? 'max-[27.5rem]:h-[35rem] min-[27.5rem]:max-lg:h-80'
-  : 'max-[27.5rem]:h-[29rem] min-[27.5rem]:max-lg:h-80';
+  ? 'max-[30rem]:h-[35rem] min-[30rem]:max-lg:h-80'
+  : 'max-[30rem]:h-[29rem] min-[30rem]:max-lg:h-80';
 const phoneScrim = hasSocial
-  ? 'max-[27.5rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_35rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_31rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_25.5rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_23.25rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_19rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]'
-  : 'max-[27.5rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_29rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_25rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_19rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]';
+  ? 'max-[30rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_35rem),color-mix(in_srgb,var(--color-ink)_95.6%,transparent)_calc(100%_-_33.667rem),color-mix(in_srgb,var(--color-ink)_84.4%,transparent)_calc(100%_-_32.333rem),color-mix(in_srgb,var(--color-ink)_70%,transparent)_calc(100%_-_31rem),color-mix(in_srgb,var(--color-ink)_55.6%,transparent)_calc(100%_-_29.667rem),color-mix(in_srgb,var(--color-ink)_44.4%,transparent)_calc(100%_-_28.333rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_27rem),color-mix(in_srgb,var(--color-ink)_42.4%,transparent)_calc(100%_-_26.375rem),color-mix(in_srgb,var(--color-ink)_48.3%,transparent)_calc(100%_-_25.75rem),color-mix(in_srgb,var(--color-ink)_56%,transparent)_calc(100%_-_25.125rem),color-mix(in_srgb,var(--color-ink)_63.7%,transparent)_calc(100%_-_24.5rem),color-mix(in_srgb,var(--color-ink)_69.6%,transparent)_calc(100%_-_23.875rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_23.25rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_19rem),color-mix(in_srgb,var(--color-ink)_68.1%,transparent)_calc(100%_-_18rem),color-mix(in_srgb,var(--color-ink)_58.5%,transparent)_calc(100%_-_17rem),color-mix(in_srgb,var(--color-ink)_46%,transparent)_calc(100%_-_16rem),color-mix(in_srgb,var(--color-ink)_33.5%,transparent)_calc(100%_-_15rem),color-mix(in_srgb,var(--color-ink)_23.9%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_13rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]'
+  : 'max-[30rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_29rem),color-mix(in_srgb,var(--color-ink)_95.6%,transparent)_calc(100%_-_27.667rem),color-mix(in_srgb,var(--color-ink)_84.4%,transparent)_calc(100%_-_26.333rem),color-mix(in_srgb,var(--color-ink)_70%,transparent)_calc(100%_-_25rem),color-mix(in_srgb,var(--color-ink)_55.6%,transparent)_calc(100%_-_23.667rem),color-mix(in_srgb,var(--color-ink)_44.4%,transparent)_calc(100%_-_22.333rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_21rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_19rem),color-mix(in_srgb,var(--color-ink)_38.5%,transparent)_calc(100%_-_18rem),color-mix(in_srgb,var(--color-ink)_34.8%,transparent)_calc(100%_-_17rem),color-mix(in_srgb,var(--color-ink)_30%,transparent)_calc(100%_-_16rem),color-mix(in_srgb,var(--color-ink)_25.2%,transparent)_calc(100%_-_15rem),color-mix(in_srgb,var(--color-ink)_21.5%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_13rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]';
 // The 3:2 photo fills the band's height there, so it is drawn 1.5 × the band height wide.
 const phonePhotoWidth = hasSocial ? '52.5rem' : '43.5rem';
 ---
@@ -57,7 +59,7 @@ const phonePhotoWidth = hasSocial ? '52.5rem' : '43.5rem';
 <BaseLayout mainClass="flex flex-col">
   <script is:inline type="application/ld+json" set:html={jsonLd} />
   {/* grow: on a short page (empty CMS) the hero fills the space above the footer.
-      Narrow phones (< 27.5rem): the photo band starts just above the buttons (see phoneBand).
+      Narrow phones (< 30rem): the photo band starts just above the buttons (see phoneBand).
       Wider phones and tablets: the text sits on solid ink and the photo is a 20rem band below
       it. From lg: text on the left, photo on the right. The 20rem band height (h-80) is
       repeated in the scrim stops, the calligraphy offset and the text's bottom padding
@@ -75,7 +77,7 @@ const phonePhotoWidth = hasSocial ? '52.5rem' : '43.5rem';
         alt=""
         formats={['avif', 'webp']}
         widths={[640, 960, 1280, 1600, 2400]}
-        sizes={`(max-width: 27.49rem) ${phonePhotoWidth}, (max-width: 29.99rem) 135vw, (max-width: 63.99rem) 100vw, 90vw`}
+        sizes={`(max-width: 29.99rem) ${phonePhotoWidth}, (max-width: 63.99rem) 100vw, 90vw`}
         loading="eager"
         fetchpriority="high"
         class={`absolute right-0 bottom-0 -z-30 w-full object-cover object-[50%_58%] forced-colors:hidden lg:top-0 lg:h-full lg:w-[60%] lg:object-[50%_55%] ${phoneBand}`}
@@ -87,7 +89,7 @@ const phonePhotoWidth = hasSocial ? '52.5rem' : '43.5rem';
         mockup). */}
     <div
       aria-hidden="true"
-      class={`absolute inset-0 -z-20 min-[27.5rem]:max-lg:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_20rem),color-mix(in_srgb,var(--color-ink)_45%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))] lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)] ${phoneScrim}`}
+      class={`absolute inset-0 -z-20 min-[30rem]:max-lg:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_20rem),color-mix(in_srgb,var(--color-ink)_45%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))] lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)] ${phoneScrim}`}
     />
     {/* Phones and tablets: a soft shade in the bottom-right corner of the photo band (below the
         text), so the calligraphy and its reading stay visible on a light photo. */}
@@ -139,7 +141,7 @@ const phonePhotoWidth = hasSocial ? '52.5rem' : '43.5rem';
       </p>
       {/* Narrow phones: always stacked (the photo band's height counts on two rows), and the
           outline button gets a dark fill because it sits on the photo there. */}
-      <div class="mt-10 flex flex-wrap gap-4 max-[27.5rem]:flex-col max-[27.5rem]:items-start">
+      <div class="mt-10 flex flex-wrap gap-4 max-[30rem]:flex-col max-[30rem]:items-start">
         <a
           href="/zapisz-sie/"
           class={`rounded-md border-2 border-brand-red bg-brand-red px-6 py-3 text-lg font-semibold hover:border-brand-red-dark hover:bg-brand-red-dark ${focusRing}`}
@@ -148,7 +150,7 @@ const phonePhotoWidth = hasSocial ? '52.5rem' : '43.5rem';
         </a>
         <a
           href="/klub/"
-          class={`rounded-md border-2 border-white px-6 py-3 text-lg font-semibold hover:bg-white hover:text-ink max-[27.5rem]:bg-ink/80 ${focusRing}`}
+          class={`rounded-md border-2 border-white px-6 py-3 text-lg font-semibold hover:bg-white hover:text-ink max-[30rem]:bg-ink/80 ${focusRing}`}
         >
           Poznaj Arawashi
         </a>
