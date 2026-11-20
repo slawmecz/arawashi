@@ -89,15 +89,21 @@ const phonePhotoWidth = hasSocial ? '52.5rem' : '43.5rem';
       aria-hidden="true"
       class={`absolute inset-0 -z-20 min-[27.5rem]:max-lg:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_20rem),color-mix(in_srgb,var(--color-ink)_45%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))] lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)] ${phoneScrim}`}
     />
-    {/* Decorative calligraphy: 空手道 (karate-dō, "the way of the empty hand"). Phones and
-        tablets: clearly visible on the left of the photo band, below the text. From lg: large
-        and faint at the left edge. Its reading in Latin letters shows from xl only, where it
-        fits in the margin left of the hero text instead of running behind it. */}
+    {/* Phones and tablets: a soft shade in the bottom-right corner of the photo band (below the
+        text), so the calligraphy and its reading stay visible on a light photo. */}
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute top-[calc(100%_-_17.5rem)] left-4 -z-10 flex items-center gap-3 select-none forced-colors:hidden md:left-6 lg:top-1/2 lg:-translate-y-1/2"
+      class="pointer-events-none absolute right-0 bottom-0 -z-15 h-76 w-44 bg-[linear-gradient(to_left,color-mix(in_srgb,var(--color-ink)_70%,transparent),color-mix(in_srgb,var(--color-ink)_35%,transparent)_60%,transparent)] [mask-image:linear-gradient(to_bottom,transparent,black_5rem)] forced-colors:hidden lg:hidden"
+    />
+    {/* Decorative calligraphy: 空手道 (karate-dō, "the way of the empty hand"), with its reading
+        in Latin letters on the left of it. Phones and tablets: on the right of the photo band,
+        below the text. From lg: large and faint at the left edge; the reading shows from xl
+        only, where it fits in the margin left of the hero text instead of running behind it. */}
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute top-[calc(100%_-_17.5rem)] right-4 -z-10 flex items-center gap-3 select-none forced-colors:hidden md:right-6 lg:top-1/2 lg:right-auto lg:left-6 lg:-translate-y-1/2"
     >
-      <p class="text-lg font-semibold tracking-[0.4em] whitespace-nowrap text-white/50 [writing-mode:vertical-rl] max-xl:hidden">
+      <p class="text-lg font-semibold tracking-[0.4em] whitespace-nowrap text-white/50 [writing-mode:vertical-rl] lg:max-xl:hidden">
         KARATE-DŌ
       </p>
       <p
