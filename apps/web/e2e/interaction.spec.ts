@@ -208,3 +208,44 @@ test('the header slides with a short transition, switched off for reduced motion
   await page.emulateMedia({ reducedMotion: 'reduce' });
   expect(await duration()).toBe('0s');
 });
+
+test('a wobbling finger does not make the header flicker', async ({ page }) => {
+  await page.goto('/polityka-prywatnosci/');
+  const header = page.locator('header[data-site-header]');
+  // Records every change of the hidden state from now on (one observer at a time, so a
+  // change is never counted twice).
+  type Watched = Window & { changes: boolean[]; observer?: MutationObserver };
+  const watch = () =>
+    page.evaluate(() => {
+      const h = document.querySelector('header[data-site-header]')!;
+      const w = window as unknown as Watched;
+      w.observer?.disconnect();
+      w.changes = [];
+      w.observer = new MutationObserver(() => w.changes.push(h.hasAttribute('data-hidden')));
+      w.observer.observe(h, { attributes: true, attributeFilter: ['data-hidden'] });
+    });
+  const changes = () => page.evaluate(() => (window as unknown as Watched).changes);
+  const wobble = async (pattern: number[], times: number) => {
+    for (let i = 0; i < times; i += 1) {
+      for (const dy of pattern) {
+        await page.evaluate((d) => window.scrollBy(0, d), dy);
+        await page.waitForTimeout(34);
+      }
+    }
+  };
+
+  await scrollInSteps(page, 1200);
+  await expect(header).toHaveAttribute('data-hidden', '');
+  await page.waitForTimeout(400);
+  await watch();
+  // Scrolling up while the finger slips back 12 px now and then: one change, to shown.
+  await wobble([-14, -14, 12], 8);
+  await page.waitForTimeout(400);
+  expect(await changes()).toEqual([false]);
+
+  await watch();
+  // Scrolling down with the same wobble: one change, to hidden.
+  await wobble([14, 14, -12], 8);
+  await page.waitForTimeout(400);
+  expect(await changes()).toEqual([true]);
+});
