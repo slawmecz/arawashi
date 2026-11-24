@@ -212,18 +212,19 @@ test('the header slides with a short transition, switched off for reduced motion
 test('a wobbling finger does not make the header flicker', async ({ page }) => {
   await page.goto('/polityka-prywatnosci/');
   const header = page.locator('header[data-site-header]');
-  // Records every change of the hidden state.
+  // Records every change of the hidden state from now on (one observer at a time, so a
+  // change is never counted twice).
+  type Watched = Window & { changes: boolean[]; observer?: MutationObserver };
   const watch = () =>
     page.evaluate(() => {
       const h = document.querySelector('header[data-site-header]')!;
-      const w = window as unknown as { changes: boolean[] };
+      const w = window as unknown as Watched;
+      w.observer?.disconnect();
       w.changes = [];
-      new MutationObserver(() => w.changes.push(h.hasAttribute('data-hidden'))).observe(h, {
-        attributes: true,
-        attributeFilter: ['data-hidden'],
-      });
+      w.observer = new MutationObserver(() => w.changes.push(h.hasAttribute('data-hidden')));
+      w.observer.observe(h, { attributes: true, attributeFilter: ['data-hidden'] });
     });
-  const changes = () => page.evaluate(() => (window as unknown as { changes: boolean[] }).changes);
+  const changes = () => page.evaluate(() => (window as unknown as Watched).changes);
   const wobble = async (pattern: number[], times: number) => {
     for (let i = 0; i < times; i += 1) {
       for (const dy of pattern) {
