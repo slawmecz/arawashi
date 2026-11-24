@@ -6,6 +6,11 @@
  * extras (close on Escape, outside tap, focus leaving, back/forward cache). From sm the
  * signup button stays visible next to "Menu". The row may wrap when text is enlarged, so
  * nothing overlaps.
+ *
+ * The header sticks to the top of the screen. While the visitor scrolls down it slides away,
+ * and it slides back as soon as they scroll up: the standard "hide on scroll" top bar (Material's
+ * enterAlways behaviour, Headroom.js). At the top of the page it looks as before. Without
+ * JavaScript it simply stays stuck to the top.
  */
 import { Image } from 'astro:assets';
 import { mainNav, signupLink, site } from '../config/site';
@@ -23,7 +28,12 @@ const ctaClass = `h-11 items-center rounded-md bg-brand-red px-4 font-semibold w
 const mobileLinkClass = `block rounded px-3 py-2.5 font-medium text-white/85 hover:bg-white/10 hover:text-white [&[aria-current]]:text-white [&[aria-current]]:underline [&[aria-current]]:underline-offset-8 ${focusRing}`;
 ---
 
-<header class="bg-ink text-white">
+{/* data-hidden: slid out of view (scrolling down); data-scrolled: not at the top of the page,
+    so a shadow separates it from the content below. Reduced motion: no slide, just hidden. */}
+<header
+  data-site-header
+  class="sticky top-0 z-40 bg-ink text-white data-[hidden]:-translate-y-full data-[scrolled]:shadow-lg data-[scrolled]:shadow-black/30 data-[hidden]:shadow-none motion-safe:transition-[translate,box-shadow] motion-safe:duration-300 motion-safe:ease-out"
+>
   <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
     <a href="/" class={`flex items-center gap-3 rounded ${focusRing}`}>
       {/* 72 px on phones from 360 px wide and tablets (22 px stay free next to Menu at 360 px),
@@ -161,5 +171,60 @@ const mobileLinkClass = `block rounded px-3 py-2.5 font-medium text-white/85 hov
     addEventListener('pageshow', (event) => {
       if (event.persisted) close();
     });
+  }
+
+  // Hide on scroll down, show on scroll up. The header never hides near the top of the page,
+  // while the mobile menu is open, or while it holds keyboard focus.
+  const header = document.querySelector<HTMLElement>('header[data-site-header]');
+  if (header) {
+    // Pixels of scrolling in one direction before the header reacts, so small jitters and
+    // slow reading scrolls near a turning point do not make it flicker.
+    const TOLERANCE = 10;
+    let turnY = scrollY; // where the current scroll direction was last measured from
+    let scheduled = false;
+    const setHidden = (hidden: boolean) => header.toggleAttribute('data-hidden', hidden);
+    const update = () => {
+      scheduled = false;
+      const y = scrollY;
+      header.toggleAttribute('data-scrolled', y > 0);
+      if (y <= header.offsetHeight) {
+        setHidden(false);
+        turnY = y;
+        return;
+      }
+      // The rubber-band bounce past the end of the page (iOS) is not a change of direction.
+      if (y > document.documentElement.scrollHeight - innerHeight) return;
+      const delta = y - turnY;
+      if (Math.abs(delta) < TOLERANCE) return;
+      const keepShown = Boolean(menu?.open) || header.querySelector(':focus-visible') !== null;
+      setHidden(delta > 0 && !keepShown);
+      turnY = y;
+    };
+    addEventListener(
+      'scroll',
+      () => {
+        if (!scheduled) {
+          scheduled = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    // Keyboard users reaching the header (Shift+Tab, skip back) always see it.
+    header.addEventListener('focusin', () => setHidden(false));
+    menu?.addEventListener('toggle', () => {
+      if (menu.open) setHidden(false);
+    });
+    // Coming back to the page (back/forward cache) shows the header again.
+    addEventListener('pageshow', () => {
+      setHidden(false);
+      turnY = scrollY;
+    });
+    // In-page links and focused form fields stop below the header: the layout sets
+    // scroll-padding-top from this height (WCAG 2.4.11, focus not hidden).
+    const setHeight = () =>
+      document.documentElement.style.setProperty('--header-h', `${header.offsetHeight}px`);
+    new ResizeObserver(setHeight).observe(header);
+    update();
   }
 </script>
