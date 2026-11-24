@@ -18,6 +18,13 @@ const rows: ScheduleRow[] = schedule.map((slot) => ({
   venue: slot.venue,
 }));
 const scheduleGroups = [...new Set(schedule.map((slot) => slot.groupName))];
+// Groups without hours in the schedule (e.g. the preschool classes, held in a kindergarten) are
+// named under it with their description, so nobody looks for them in the table.
+const offSchedule = groups.flatMap((group) =>
+  group.description && !scheduleGroups.includes(group.name)
+    ? [{ id: group.id, name: group.name, description: group.description }]
+    : [],
+);
 const telHref = settings.phone ? `tel:${settings.phone.replace(/[^\d+]/g, '')}` : undefined;
 ---
 
@@ -36,7 +43,18 @@ const telHref = settings.phone ? `tel:${settings.phone.replace(/[^\d+]/g, '')}` 
         Grafik zajęć
       </h2>
       {rows.length > 0 ? (
-        <ScheduleFilter client:visible rows={rows} groups={scheduleGroups} />
+        <>
+          <ScheduleFilter client:visible rows={rows} groups={scheduleGroups} />
+          {offSchedule.length > 0 && (
+            <ul class="mt-6 space-y-3">
+              {offSchedule.map((group) => (
+                <li class="rounded-lg border border-ink/15 p-4">
+                  <strong>{nbsp(group.name)}:</strong> {nbsp(group.description)}
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       ) : (
         <EmptyState message="Grafik zajęć na ten sezon pojawi się wkrótce." />
       )}
