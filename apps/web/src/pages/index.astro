@@ -36,24 +36,25 @@ const linkClass =
 const cardLink = 'after:absolute after:inset-0 after:rounded-lg';
 const socialClass = `inline-flex items-center gap-2 py-1 font-semibold underline underline-offset-4 hover:text-white ${focusRing}`;
 
-// Narrow phones (< 30rem, the two buttons stacked): the photo band starts behind the lower edge
-// of the slogan (h1), so its soft start shows from the lead text down and the first screen shows
-// the photo around the buttons. Its height is everything below that point, in rem: 2.5 (behind
-// the slogan) + 1.5 (gap) + 3.5 (two lines of lead text) + 2.5 (gap) + 8 (two stacked buttons) +
-// 6 (the "Śledź nas" row with its margin) + 19 (the text's bottom padding) = 43, or 37 without
-// the social row. The scrim stops repeat these values: solid ink at the band's top, easing to 72%
-// ink at the end of the lead text (white text stays AA on any photo) and to 40% around the
-// buttons (the outline button has its own dark fill), 72% behind "Śledź nas", then clear below
-// the text. Every change of opacity follows smoothstep (generated stops), so no edge shows where
-// a linear ramp would start or end.
+// Narrow phones (< 30rem, the two buttons stacked): the photo band starts at the top of the
+// slogan (h1) and its soft start runs down through the slogan and the lead text, so the photo is
+// barely visible at the top and slowly comes in towards the buttons. Its height is everything
+// below that point, in rem: 8.5 (three lines of the slogan) + 1.5 (gap) + 3.5 (two lines of lead
+// text) + 2.5 (gap) + 8 (two stacked buttons) + 6 (the "Śledź nas" row with its margin) + 13 (the
+// text's bottom padding on phones, pb-52) = 43, or 37 without the social row. The scrim stops
+// repeat these values: solid ink at the band's top, easing slowly to 72% ink at the end of the
+// lead text (white text stays AA on any photo) and to 40% around the buttons (the outline button
+// has its own dark fill), 72% behind "Śledź nas", then 20% towards the bottom. Every change of
+// opacity follows smoothstep (generated stops), so no edge shows where a linear ramp would start
+// or end.
 const hasSocial = Boolean(settings.facebookUrl || settings.instagramUrl);
 // Bounded ranges, so these never compete with the lg classes.
 const phoneBand = hasSocial
   ? 'max-[30rem]:h-[43rem] min-[30rem]:max-lg:h-80'
   : 'max-[30rem]:h-[37rem] min-[30rem]:max-lg:h-80';
 const phoneScrim = hasSocial
-  ? 'max-[30rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_43rem),color-mix(in_srgb,var(--color-ink)_97.9%,transparent)_calc(100%_-_41.75rem),color-mix(in_srgb,var(--color-ink)_92.7%,transparent)_calc(100%_-_40.5rem),color-mix(in_srgb,var(--color-ink)_86%,transparent)_calc(100%_-_39.25rem),color-mix(in_srgb,var(--color-ink)_79.3%,transparent)_calc(100%_-_38rem),color-mix(in_srgb,var(--color-ink)_74.1%,transparent)_calc(100%_-_36.75rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_35.5rem),color-mix(in_srgb,var(--color-ink)_69.6%,transparent)_calc(100%_-_34.583rem),color-mix(in_srgb,var(--color-ink)_63.7%,transparent)_calc(100%_-_33.667rem),color-mix(in_srgb,var(--color-ink)_56%,transparent)_calc(100%_-_32.75rem),color-mix(in_srgb,var(--color-ink)_48.3%,transparent)_calc(100%_-_31.833rem),color-mix(in_srgb,var(--color-ink)_42.4%,transparent)_calc(100%_-_30.917rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_30rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_27rem),color-mix(in_srgb,var(--color-ink)_42.4%,transparent)_calc(100%_-_26.375rem),color-mix(in_srgb,var(--color-ink)_48.3%,transparent)_calc(100%_-_25.75rem),color-mix(in_srgb,var(--color-ink)_56%,transparent)_calc(100%_-_25.125rem),color-mix(in_srgb,var(--color-ink)_63.7%,transparent)_calc(100%_-_24.5rem),color-mix(in_srgb,var(--color-ink)_69.6%,transparent)_calc(100%_-_23.875rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_23.25rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_19rem),color-mix(in_srgb,var(--color-ink)_68.1%,transparent)_calc(100%_-_18rem),color-mix(in_srgb,var(--color-ink)_58.5%,transparent)_calc(100%_-_17rem),color-mix(in_srgb,var(--color-ink)_46%,transparent)_calc(100%_-_16rem),color-mix(in_srgb,var(--color-ink)_33.5%,transparent)_calc(100%_-_15rem),color-mix(in_srgb,var(--color-ink)_23.9%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_13rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]'
-  : 'max-[30rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_37rem),color-mix(in_srgb,var(--color-ink)_97.9%,transparent)_calc(100%_-_35.75rem),color-mix(in_srgb,var(--color-ink)_92.7%,transparent)_calc(100%_-_34.5rem),color-mix(in_srgb,var(--color-ink)_86%,transparent)_calc(100%_-_33.25rem),color-mix(in_srgb,var(--color-ink)_79.3%,transparent)_calc(100%_-_32rem),color-mix(in_srgb,var(--color-ink)_74.1%,transparent)_calc(100%_-_30.75rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_29.5rem),color-mix(in_srgb,var(--color-ink)_69.6%,transparent)_calc(100%_-_28.583rem),color-mix(in_srgb,var(--color-ink)_63.7%,transparent)_calc(100%_-_27.667rem),color-mix(in_srgb,var(--color-ink)_56%,transparent)_calc(100%_-_26.75rem),color-mix(in_srgb,var(--color-ink)_48.3%,transparent)_calc(100%_-_25.833rem),color-mix(in_srgb,var(--color-ink)_42.4%,transparent)_calc(100%_-_24.917rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_24rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_19rem),color-mix(in_srgb,var(--color-ink)_38.5%,transparent)_calc(100%_-_18rem),color-mix(in_srgb,var(--color-ink)_34.8%,transparent)_calc(100%_-_17rem),color-mix(in_srgb,var(--color-ink)_30%,transparent)_calc(100%_-_16rem),color-mix(in_srgb,var(--color-ink)_25.2%,transparent)_calc(100%_-_15rem),color-mix(in_srgb,var(--color-ink)_21.5%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_13rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]';
+  ? 'max-[30rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_43rem),color-mix(in_srgb,var(--color-ink)_97.9%,transparent)_calc(100%_-_40.75rem),color-mix(in_srgb,var(--color-ink)_92.7%,transparent)_calc(100%_-_38.5rem),color-mix(in_srgb,var(--color-ink)_86%,transparent)_calc(100%_-_36.25rem),color-mix(in_srgb,var(--color-ink)_79.3%,transparent)_calc(100%_-_34rem),color-mix(in_srgb,var(--color-ink)_74.1%,transparent)_calc(100%_-_31.75rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_29.5rem),color-mix(in_srgb,var(--color-ink)_69.6%,transparent)_calc(100%_-_28.583rem),color-mix(in_srgb,var(--color-ink)_63.7%,transparent)_calc(100%_-_27.667rem),color-mix(in_srgb,var(--color-ink)_56%,transparent)_calc(100%_-_26.75rem),color-mix(in_srgb,var(--color-ink)_48.3%,transparent)_calc(100%_-_25.833rem),color-mix(in_srgb,var(--color-ink)_42.4%,transparent)_calc(100%_-_24.917rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_24rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_21rem),color-mix(in_srgb,var(--color-ink)_42.4%,transparent)_calc(100%_-_20.375rem),color-mix(in_srgb,var(--color-ink)_48.3%,transparent)_calc(100%_-_19.75rem),color-mix(in_srgb,var(--color-ink)_56%,transparent)_calc(100%_-_19.125rem),color-mix(in_srgb,var(--color-ink)_63.7%,transparent)_calc(100%_-_18.5rem),color-mix(in_srgb,var(--color-ink)_69.6%,transparent)_calc(100%_-_17.875rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_17.25rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_13rem),color-mix(in_srgb,var(--color-ink)_68.1%,transparent)_calc(100%_-_12rem),color-mix(in_srgb,var(--color-ink)_58.5%,transparent)_calc(100%_-_11rem),color-mix(in_srgb,var(--color-ink)_46%,transparent)_calc(100%_-_10rem),color-mix(in_srgb,var(--color-ink)_33.5%,transparent)_calc(100%_-_9rem),color-mix(in_srgb,var(--color-ink)_23.9%,transparent)_calc(100%_-_8rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_7rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]'
+  : 'max-[30rem]:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_37rem),color-mix(in_srgb,var(--color-ink)_97.9%,transparent)_calc(100%_-_34.75rem),color-mix(in_srgb,var(--color-ink)_92.7%,transparent)_calc(100%_-_32.5rem),color-mix(in_srgb,var(--color-ink)_86%,transparent)_calc(100%_-_30.25rem),color-mix(in_srgb,var(--color-ink)_79.3%,transparent)_calc(100%_-_28rem),color-mix(in_srgb,var(--color-ink)_74.1%,transparent)_calc(100%_-_25.75rem),color-mix(in_srgb,var(--color-ink)_72%,transparent)_calc(100%_-_23.5rem),color-mix(in_srgb,var(--color-ink)_69.6%,transparent)_calc(100%_-_22.583rem),color-mix(in_srgb,var(--color-ink)_63.7%,transparent)_calc(100%_-_21.667rem),color-mix(in_srgb,var(--color-ink)_56%,transparent)_calc(100%_-_20.75rem),color-mix(in_srgb,var(--color-ink)_48.3%,transparent)_calc(100%_-_19.833rem),color-mix(in_srgb,var(--color-ink)_42.4%,transparent)_calc(100%_-_18.917rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_18rem),color-mix(in_srgb,var(--color-ink)_40%,transparent)_calc(100%_-_13rem),color-mix(in_srgb,var(--color-ink)_38.5%,transparent)_calc(100%_-_12rem),color-mix(in_srgb,var(--color-ink)_34.8%,transparent)_calc(100%_-_11rem),color-mix(in_srgb,var(--color-ink)_30%,transparent)_calc(100%_-_10rem),color-mix(in_srgb,var(--color-ink)_25.2%,transparent)_calc(100%_-_9rem),color-mix(in_srgb,var(--color-ink)_21.5%,transparent)_calc(100%_-_8rem),color-mix(in_srgb,var(--color-ink)_20%,transparent)_calc(100%_-_7rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))]';
 // The 3:2 photo fills the band's height there, so it is drawn 1.5 × the band height wide.
 const phonePhotoWidth = hasSocial ? '64.5rem' : '55.5rem';
 ---
@@ -61,11 +62,11 @@ const phonePhotoWidth = hasSocial ? '64.5rem' : '55.5rem';
 <BaseLayout mainClass="flex flex-col">
   <script is:inline type="application/ld+json" set:html={jsonLd} />
   {/* grow: on a short page (empty CMS) the hero fills the space above the footer.
-      Narrow phones (< 30rem): the photo band starts just above the buttons (see phoneBand).
+      Narrow phones (< 30rem): the photo band starts at the top of the slogan (see phoneBand).
       Wider phones and tablets: the text sits on solid ink and the photo is a 20rem band below
       it. From lg: text on the left, photo on the right. The 20rem band height (h-80) is
       repeated in the scrim stops, the calligraphy offset and the text's bottom padding
-      (pb-76 = 19rem: the band overlaps the last 1rem). */}
+      (pb-76 = 19rem: the band overlaps the last 1rem). Narrow phones use pb-52. */}
   <section class="relative isolate flex grow flex-col justify-center overflow-hidden bg-ink text-white">
     {/* The club's own photo from the CMS, otherwise the default photo (config/site.ts). */}
     {heroImage ? (
@@ -94,31 +95,34 @@ const phonePhotoWidth = hasSocial ? '64.5rem' : '55.5rem';
       class={`absolute inset-0 -z-20 min-[30rem]:max-lg:bg-[linear-gradient(to_bottom,var(--color-ink)_calc(100%_-_20rem),color-mix(in_srgb,var(--color-ink)_45%,transparent)_calc(100%_-_14rem),color-mix(in_srgb,var(--color-ink)_20%,transparent))] lg:bg-[linear-gradient(to_right,var(--color-ink)_45%,color-mix(in_srgb,var(--color-ink)_30%,transparent)_95%)] ${phoneScrim}`}
     />
     {/* Phones and tablets: a soft shade in the bottom-right corner of the photo band (below the
-        text), so the calligraphy and its reading stay visible on a light photo. */}
+        text), so the calligraphy and its reading stay visible on a light photo. Narrow phones: as
+        tall as the shorter part below the text, and stronger (the smoke at the photo's bottom is
+        light). */}
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute right-0 bottom-0 -z-15 h-76 w-44 bg-[linear-gradient(to_left,color-mix(in_srgb,var(--color-ink)_70%,transparent),color-mix(in_srgb,var(--color-ink)_35%,transparent)_60%,transparent)] [mask-image:linear-gradient(to_bottom,transparent,black_5rem)] forced-colors:hidden lg:hidden"
+      class="pointer-events-none absolute right-0 bottom-0 -z-15 w-44 forced-colors:hidden max-[30rem]:h-52 max-[30rem]:bg-[linear-gradient(to_left,color-mix(in_srgb,var(--color-ink)_80%,transparent),color-mix(in_srgb,var(--color-ink)_45%,transparent)_60%,transparent)] max-[30rem]:[mask-image:linear-gradient(to_bottom,transparent,black_3rem)] min-[30rem]:h-76 min-[30rem]:bg-[linear-gradient(to_left,color-mix(in_srgb,var(--color-ink)_70%,transparent),color-mix(in_srgb,var(--color-ink)_35%,transparent)_60%,transparent)] min-[30rem]:[mask-image:linear-gradient(to_bottom,transparent,black_5rem)] lg:hidden"
     />
     {/* Decorative calligraphy: 空手道 (karate-dō, "the way of the empty hand"), with its reading
         in Latin letters on the left of it. Phones and tablets: on the right of the photo band,
-        below the text. From lg: large and faint at the left edge; the reading shows from xl
-        only, where it fits in the margin left of the hero text instead of running behind it. */}
+        below the text; on narrow phones smaller and 1rem above the band's bottom. From lg:
+        large and faint at the left edge; the reading shows from xl only, where it fits in the
+        margin left of the hero text instead of running behind it. */}
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute top-[calc(100%_-_17.5rem)] right-4 -z-10 flex items-center gap-3 select-none forced-colors:hidden md:right-6 lg:top-1/2 lg:right-auto lg:left-6 lg:-translate-y-1/2"
+      class="pointer-events-none absolute right-4 -z-10 max-[30rem]:top-[calc(100%_-_11.5rem)] min-[30rem]:max-lg:top-[calc(100%_-_17.5rem)] flex items-center gap-3 select-none forced-colors:hidden md:right-6 lg:top-1/2 lg:right-auto lg:left-6 lg:-translate-y-1/2"
     >
       <p class="text-lg font-semibold tracking-[0.4em] whitespace-nowrap text-white/50 [writing-mode:vertical-rl] lg:max-xl:hidden">
         KARATE-DŌ
       </p>
       <p
         lang="ja"
-        class="text-[4rem] leading-none font-bold whitespace-nowrap text-white/50 [text-shadow:0_2px_14px_rgb(0_0_0/0.7)] [writing-mode:vertical-rl] lg:text-[12rem] lg:text-white/5 lg:[text-shadow:none]"
+        class="leading-none font-bold whitespace-nowrap text-white/50 max-[30rem]:text-[3.5rem] min-[30rem]:max-lg:text-[4rem] [text-shadow:0_2px_14px_rgb(0_0_0/0.7)] [writing-mode:vertical-rl] lg:text-[12rem] lg:text-white/5 lg:[text-shadow:none]"
       >
         空手道
       </p>
     </div>
 
-    <div class="mx-auto w-full max-w-6xl px-4 pt-12 pb-76 md:pt-36 lg:pb-36">
+    <div class="mx-auto w-full max-w-6xl px-4 pt-12 max-[30rem]:pb-52 min-[30rem]:max-lg:pb-76 md:pt-36 lg:pb-36">
       {/* Flex with a gap, so source formatting cannot change the spacing: one line with "·"
           from sm, two deliberate lines (no dangling separator) on phones. */}
       <p
