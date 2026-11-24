@@ -177,40 +177,56 @@ const mobileLinkClass = `block rounded px-3 py-2.5 font-medium text-white/85 hov
   // while the mobile menu is open, or while it holds keyboard focus.
   const header = document.querySelector<HTMLElement>('header[data-site-header]');
   if (header) {
-    // Pixels of scrolling in one direction before the header reacts, so small jitters and
-    // slow reading scrolls near a turning point do not make it flicker.
-    const TOLERANCE = 10;
-    let turnY = scrollY; // where the current scroll direction was last measured from
+    // Distances count from the furthest point reached since the header last changed: the
+    // lowest point while it is hidden, the highest while it is shown. A finger wobbling back a
+    // few pixels during a swipe therefore changes nothing (a fixed 10 px step from the last
+    // move made the header flicker on phones).
+    const SHOW_AFTER = 30; // px scrolled up from the lowest point since it hid
+    const HIDE_AFTER = 60; // px scrolled down from the highest point since it showed
+    const HOLD_MS = 300; // a new state lasts at least as long as the slide (decisions wait)
+    let hidden = false;
+    let extremeY = scrollY;
+    let holdUntil = 0;
     let scheduled = false;
-    const setHidden = (hidden: boolean) => header.toggleAttribute('data-hidden', hidden);
+    let recheck: ReturnType<typeof setTimeout> | undefined;
+    const setHidden = (next: boolean) => {
+      if (next === hidden) return;
+      hidden = next;
+      header.toggleAttribute('data-hidden', next);
+      extremeY = scrollY;
+      holdUntil = performance.now() + HOLD_MS;
+    };
+    const keepShown = () => Boolean(menu?.open) || header.querySelector(':focus-visible') !== null;
     const update = () => {
       scheduled = false;
       const y = scrollY;
       header.toggleAttribute('data-scrolled', y > 0);
       if (y <= header.offsetHeight) {
         setHidden(false);
-        turnY = y;
+        extremeY = y;
         return;
       }
       // The rubber-band bounce past the end of the page (iOS) is not a change of direction.
       if (y > document.documentElement.scrollHeight - innerHeight) return;
-      const delta = y - turnY;
-      if (Math.abs(delta) < TOLERANCE) return;
-      const keepShown = Boolean(menu?.open) || header.querySelector(':focus-visible') !== null;
-      setHidden(delta > 0 && !keepShown);
-      turnY = y;
+      extremeY = hidden ? Math.max(extremeY, y) : Math.min(extremeY, y);
+      const wait = holdUntil - performance.now();
+      if (wait > 0) {
+        // Still sliding: decide once the slide is over, even if the scrolling has stopped.
+        clearTimeout(recheck);
+        recheck = setTimeout(requestUpdate, wait);
+        return;
+      }
+      if (hidden && y <= extremeY - SHOW_AFTER) setHidden(false);
+      else if (!hidden && y >= extremeY + HIDE_AFTER && !keepShown()) setHidden(true);
     };
-    addEventListener(
-      'scroll',
-      () => {
-        if (!scheduled) {
-          scheduled = true;
-          requestAnimationFrame(update);
-        }
-      },
-      { passive: true },
-    );
-    // Keyboard users reaching the header (Shift+Tab, skip back) always see it.
+    const requestUpdate = () => {
+      if (!scheduled) {
+        scheduled = true;
+        requestAnimationFrame(update);
+      }
+    };
+    addEventListener('scroll', requestUpdate, { passive: true });
+    // Keyboard users reaching the header (Shift+Tab, skip back) always see it, at once.
     header.addEventListener('focusin', () => setHidden(false));
     menu?.addEventListener('toggle', () => {
       if (menu.open) setHidden(false);
@@ -218,7 +234,7 @@ const mobileLinkClass = `block rounded px-3 py-2.5 font-medium text-white/85 hov
     // Coming back to the page (back/forward cache) shows the header again.
     addEventListener('pageshow', () => {
       setHidden(false);
-      turnY = scrollY;
+      extremeY = scrollY;
     });
     // In-page links and focused form fields stop below the header: the layout sets
     // scroll-padding-top from this height (WCAG 2.4.11, focus not hidden).
