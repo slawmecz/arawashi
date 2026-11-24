@@ -137,3 +137,74 @@ test('colour transitions are switched off for visitors who prefer reduced motion
   await page.emulateMedia({ reducedMotion: 'reduce' });
   expect(await linkTransition()).toBe('0s');
 });
+
+/** Scrolls by `total` pixels in steps, like a visitor, so the header sees a direction. */
+async function scrollInSteps(page: import('@playwright/test').Page, total: number, step = 100) {
+  const steps = Math.ceil(Math.abs(total) / step);
+  for (let i = 0; i < steps; i += 1) {
+    await page.evaluate((dy) => window.scrollBy(0, dy), Math.sign(total) * step);
+    await page.waitForTimeout(40);
+  }
+}
+
+test('the header hides while scrolling down and comes back when scrolling up', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' }); // no slide, so positions settle at once
+  await page.goto('/polityka-prywatnosci/');
+  const header = page.locator('header[data-site-header]');
+  await expect(header).not.toHaveAttribute('data-hidden');
+  await expect(header).not.toHaveAttribute('data-scrolled');
+
+  await scrollInSteps(page, 900);
+  await expect(header).toHaveAttribute('data-hidden', '');
+  await expect.poll(async () => (await header.boundingBox())?.y).toBeLessThanOrEqual(-50);
+
+  // A short scroll up is enough to bring it back, stuck to the top of the screen.
+  await scrollInSteps(page, -60, 30);
+  await expect(header).not.toHaveAttribute('data-hidden');
+  await expect(header).toHaveAttribute('data-scrolled', '');
+  await expect.poll(async () => (await header.boundingBox())?.y).toBe(0);
+
+  // Back at the top it is part of the page again, without the shadow.
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(header).not.toHaveAttribute('data-scrolled');
+});
+
+test('the header comes back when the keyboard focus moves into it', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/polityka-prywatnosci/');
+  const header = page.locator('header[data-site-header]');
+  await scrollInSteps(page, 900);
+  await expect(header).toHaveAttribute('data-hidden', '');
+  await header.getByRole('link').first().focus();
+  await expect(header).not.toHaveAttribute('data-hidden');
+});
+
+test('the header stays while the mobile menu is open', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'The collapsible menu is only shown on small screens.');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/polityka-prywatnosci/');
+  const header = page.locator('header[data-site-header]');
+  await scrollInSteps(page, 600);
+  await scrollInSteps(page, -60, 30);
+  await expect(header).not.toHaveAttribute('data-hidden');
+
+  await page.locator('summary', { hasText: 'Menu' }).click();
+  await expect(page.getByRole('navigation', { name: 'Menu mobilne' })).toBeVisible();
+  await scrollInSteps(page, 400);
+  await expect(header).not.toHaveAttribute('data-hidden');
+});
+
+test('the header slides with a short transition, switched off for reduced motion', async ({
+  page,
+}) => {
+  const duration = async () => {
+    await page.goto('/');
+    return page
+      .locator('header[data-site-header]')
+      .evaluate((el) => getComputedStyle(el).transitionDuration);
+  };
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  expect(await duration()).toBe('0.3s');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  expect(await duration()).toBe('0s');
+});
